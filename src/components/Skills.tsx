@@ -23,7 +23,9 @@ export default function Skills() {
     loadSkills();
   }, []);
 
-  const categories = ['all', ...new Set(skills.map(skill => skill.category))];
+  const categories = Array.from(new Set(skills.map(skill => skill.category)));
+  categories.sort();
+  const allCategories = ['all', ...categories];
   
   const filteredSkills = selectedCategory === 'all'
     ? skills
@@ -51,7 +53,7 @@ export default function Skills() {
 
         <div className="mt-8">
           <div className="flex justify-center space-x-4 flex-wrap">
-            {categories.map(category => (
+            {allCategories.map(category => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
