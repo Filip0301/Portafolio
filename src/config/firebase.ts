@@ -1,16 +1,16 @@
-import { initializeApp, getApps } from 'firebase/app';
+import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
-// Debug: Verificar si las variables de entorno están definidas
-console.log('Estado de las variables de entorno:', {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? 'Definida' : 'No definida',
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ? 'Definida' : 'No definida',
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ? 'Definida' : 'No definida',
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ? 'Definida' : 'No definida',
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ? 'Definida' : 'No definida',
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ? 'Definida' : 'No definida',
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID ? 'Definida' : 'No definida'
+// Debug: Imprimir todas las variables de entorno disponibles
+console.log('Variables de entorno de Firebase:', {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'no disponible',
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'no disponible',
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'no disponible',
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'no disponible',
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || 'no disponible',
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || 'no disponible',
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || 'no disponible'
 });
 
 const firebaseConfig = {
@@ -23,23 +23,19 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Debug: Imprimir la configuración completa
-console.log('Firebase Config:', firebaseConfig);
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase only if it hasn't been initialized
-let app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-
-// Initialize Firestore
+// Inicializar Firestore y Auth
 export const db = getFirestore(app);
+export const auth = getAuth(app);
 
 // Initialize Analytics only in the browser
 if (typeof window !== 'undefined') {
   import('firebase/analytics').then(({ getAnalytics }) => {
     getAnalytics(app);
+    console.log('Analytics inicializado correctamente');
   }).catch((error) => {
     console.error('Error loading analytics:', error);
   });
-}
-
-// Initialize Auth
-export const auth = getAuth(app); 
+} 

@@ -1,36 +1,34 @@
-import './globals.css';
-import { Inter } from 'next/font/google';
-import { ThemeProvider } from '../context/ThemeContext';
-import ThemeToggle from '../components/ThemeToggle';
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import ThemeToggle from '../components/ThemeToggle'
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'] })
 
-export const metadata = {
-  title: 'Felipe Zuñiga | Portafolio',
-  description: 'Portafolio personal de Felipe Zuñiga - Desarrollador Full Stack',
-};
+export const metadata: Metadata = {
+  title: 'Mi Portafolio',
+  description: 'Portafolio profesional',
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <head>
-        <title>{metadata.title}</title>
-        <meta name="description" content={metadata.description} />
-      </head>
-      <body className={`${inter.className} antialiased`}>
-        <ThemeProvider>
-          <div className="min-h-screen bg-white dark:bg-gradient-to-b dark:from-black dark:via-[#0a0a0a] dark:to-[#121212]">
-            <main className="relative z-10">
-              {children}
-              <ThemeToggle />
-            </main>
-          </div>
-        </ThemeProvider>
+    <html lang="en">
+      <body className={`${inter.className} relative`}>
+        {/* Fondo fijo con gradiente */}
+        <div className="fixed inset-0 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-black transition-colors duration-200" />
+        
+        {/* Theme Toggle siempre visible */}
+        <ThemeToggle />
+        
+        {/* Contenido principal */}
+        <main className="relative z-10 min-h-screen">
+          {children}
+        </main>
       </body>
     </html>
-  );
+  )
 } 

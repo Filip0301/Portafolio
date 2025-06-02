@@ -6,13 +6,19 @@ import { Skill, getAllSkills } from '../services/firebase';
 export default function Skills() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
 
   useEffect(() => {
     const loadSkills = async () => {
       try {
         const loadedSkills = await getAllSkills();
         setSkills(loadedSkills);
+        // Seleccionar la primera categoría por defecto
+        if (loadedSkills.length > 0) {
+          const categories = Array.from(new Set(loadedSkills.map(skill => skill.category)));
+          categories.sort();
+          setSelectedCategory(categories[0]);
+        }
       } catch (error) {
         console.error('Error loading skills:', error);
       } finally {
@@ -25,11 +31,8 @@ export default function Skills() {
 
   const categories = Array.from(new Set(skills.map(skill => skill.category)));
   categories.sort();
-  const allCategories = ['all', ...categories];
   
-  const filteredSkills = selectedCategory === 'all'
-    ? skills
-    : skills.filter(skill => skill.category === selectedCategory);
+  const filteredSkills = skills.filter(skill => skill.category === selectedCategory);
 
   if (loading) {
     return (
@@ -40,7 +43,7 @@ export default function Skills() {
   }
 
   return (
-    <section className="py-16">
+    <section className="py-16 max-h-[200vh]">
       <div className="max-w-2xl min-w-[50vw] mx-auto">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">
@@ -53,7 +56,7 @@ export default function Skills() {
 
         <div className="mt-8">
           <div className="flex justify-center space-x-4 flex-wrap">
-            {allCategories.map(category => (
+            {categories.map(category => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
@@ -63,7 +66,7 @@ export default function Skills() {
                     : 'bg-gray-200 dark:bg-black/40 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-black/60 border border-gray-300 dark:border-gray-700'
                 }`}
               >
-                {category === 'all' ? 'Mostrar Todas' : category}
+                {category}
               </button>
             ))}
           </div>

@@ -24,7 +24,7 @@ export interface Skill {
   id?: string;
   name: string;
   category: string;
-  icon?: string;
+  icon: string;
   years_experience: number;
 }
 
@@ -33,6 +33,7 @@ export interface Certification {
   name: string;
   issuer: string;
   issue_date: string;
+  icon: string;
   expiry_date?: string;
   credential_id?: string;
   credential_url?: string;
@@ -43,8 +44,13 @@ export interface Certification {
 // Funciones para PersonalInfo
 export const createOrUpdatePersonalInfo = async (data: PersonalInfo) => {
   try {
+    const dataToSave = {
+      ...data,
+      social_media: data.social_media || []
+    };
+    
     const docRef = doc(db, 'personal_info', 'main');
-    await setDoc(docRef, data);
+    await setDoc(docRef, dataToSave);
     return { success: true };
   } catch (error) {
     console.error('Error creating/updating personal info:', error);
@@ -66,15 +72,35 @@ export const getPersonalInfo = async (): Promise<PersonalInfo | null> => {
 // Funciones para Skills
 export const getAllSkills = async (): Promise<Skill[]> => {
   try {
-    const skillsRef = collection(db, 'skills');
-    const snapshot = await getDocs(skillsRef);
-    return snapshot.docs.map(doc => ({
+    const querySnapshot = await getDocs(collection(db, 'skills'));
+    return querySnapshot.docs.map(doc => ({
       id: doc.id,
-      ...(doc.data() as Omit<Skill, 'id'>)
-    }));
+      ...doc.data()
+    } as Skill));
   } catch (error) {
     console.error('Error getting skills:', error);
     return [];
+  }
+};
+
+export const updateSkill = async (skillId: string, skillData: Partial<Skill>) => {
+  try {
+    const skillRef = doc(db, 'skills', skillId);
+    await updateDoc(skillRef, skillData);
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating skill:', error);
+    return { success: false, error };
+  }
+};
+
+export const deleteSkill = async (skillId: string) => {
+  try {
+    await deleteDoc(doc(db, 'skills', skillId));
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting skill:', error);
+    return { success: false, error };
   }
 };
 
@@ -89,5 +115,26 @@ export const getAllCertifications = async (): Promise<Certification[]> => {
   } catch (error) {
     console.error('Error getting certifications:', error);
     throw error;
+  }
+};
+
+export const updateCertification = async (certId: string, certData: Partial<Certification>) => {
+  try {
+    const certRef = doc(db, 'certifications', certId);
+    await updateDoc(certRef, certData);
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating certification:', error);
+    return { success: false, error };
+  }
+};
+
+export const deleteCertification = async (certId: string) => {
+  try {
+    await deleteDoc(doc(db, 'certifications', certId));
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting certification:', error);
+    return { success: false, error };
   }
 }; 

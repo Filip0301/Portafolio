@@ -3,17 +3,9 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { PersonalInfo, getPersonalInfo } from '../services/firebase';
-import { FaGithub, FaLinkedin, FaTwitter, FaInstagram } from 'react-icons/fa';
 import Navigation from './Navigation';
 import Skills from './Skills';
 import Certifications from './Certifications';
-
-const socialIcons: { [key: string]: React.ReactElement } = {
-  github: <FaGithub size={24} />,
-  linkedin: <FaLinkedin size={24} />,
-  twitter: <FaTwitter size={24} />,
-  instagram: <FaInstagram size={24} />
-};
 
 export default function Hero() {
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo | null>(null);
@@ -38,7 +30,10 @@ export default function Hero() {
             social_media: []
           });
         } else {
-          setPersonalInfo(info);
+          setPersonalInfo({
+            ...info,
+            social_media: info.social_media || []
+          });
         }
       } catch (error) {
         console.error('Error detallado al cargar información personal:', error);
@@ -75,7 +70,7 @@ export default function Hero() {
   }
 
   const renderPersonalInfo = () => (
-    <div className="mt-10 max-w-2xl min-w-[50vw] mx-auto">
+    <div className="mt-10 max-w-2xl min-w-[50vw] mx-auto max-h-[200vh]">
       <div className="bg-white dark:bg-black/40 backdrop-blur-sm shadow-lg rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
         <div className="px-4 py-5 sm:px-6">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">
@@ -119,11 +114,12 @@ export default function Hero() {
       <div className="bg-white dark:bg-black/40 backdrop-blur-sm shadow-lg rounded-lg p-6 border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Contacto</h3>
         <div className="space-y-6">
-          <div>
-            <h4 className="text-sm font-medium text-gray-500 dark:text-gray-300">Redes Sociales</h4>
-            <div className="mt-4 flex space-x-6 justify-center">
-              {personalInfo.social_media.map((social, index) => (
-                social.isActive && (
+          {/* Temporalmente oculto la sección de redes sociales
+          {personalInfo.social_media && personalInfo.social_media.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-300">Redes Sociales</h4>
+              <div className="mt-4 flex space-x-6 justify-center">
+                {personalInfo.social_media.map((social, index) => (
                   <a
                     key={index}
                     href={social.url}
@@ -136,10 +132,11 @@ export default function Hero() {
                       <span className="w-6 h-6 block">{social.platform[0]}</span>
                     )}
                   </a>
-                )
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+          */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h4 className="text-sm font-medium text-gray-500 dark:text-gray-300">Email</h4>
@@ -197,7 +194,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="min-h-screen">
+    <section className="relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 min-h-screen flex flex-col">
         <div className="text-center">
           <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
