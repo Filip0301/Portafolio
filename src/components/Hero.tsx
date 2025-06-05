@@ -70,7 +70,7 @@ export default function Hero() {
   }
 
   const renderPersonalInfo = () => (
-    <div className="mt-10 max-w-2xl min-w-[50vw] mx-auto max-h-[200vh]">
+    <div className="mt-10 max-w-2xl w-full mx-auto px-4 md:px-0">
       <div className="bg-white dark:bg-black/40 backdrop-blur-sm shadow-lg rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
         <div className="px-4 py-5 sm:px-6">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">
@@ -87,7 +87,7 @@ export default function Hero() {
             </div>
             <div className="bg-white dark:bg-black/40 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500 dark:text-gray-300">Email</dt>
-              <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+              <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2 break-all">
                 {personalInfo.email}
               </dd>
             </div>
@@ -195,12 +195,12 @@ export default function Hero() {
 
   return (
     <section className="relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 min-h-screen flex flex-col">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-20 min-h-screen flex flex-col">
         <div className="text-center">
-          <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
+          <h1 className="text-3xl md:text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
             {personalInfo.name}
           </h1>
-          <p className="mt-3 max-w-md mx-auto text-base text-gray-500 dark:text-gray-300 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+          <p className="mt-3 max-w-md mx-auto text-sm md:text-base text-gray-500 dark:text-gray-300 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
             {personalInfo.title}
           </p>
         </div>

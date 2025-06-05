@@ -18,12 +18,12 @@ export default function Navigation({ currentSection, onSectionChange }: Navigati
 
   return (
     <nav className="mt-10">
-      <div className="flex justify-center space-x-4 flex-wrap">
+      <div className="flex justify-center space-x-2 md:space-x-4 flex-wrap px-2 md:px-0">
         {sections.map(section => (
           <button
             key={section.id}
             onClick={() => onSectionChange(section.id)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
+            className={`px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium transition-colors duration-200 mb-2 ${
               currentSection === section.id
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
