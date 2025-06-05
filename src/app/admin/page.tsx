@@ -277,7 +277,7 @@ export default function AdminPage() {
 
   const handleUpdateSocialMedia = async () => {
     if (!editingSocialMedia?.id) return;
-
+    
     try {
       await updateSocialMedia(editingSocialMedia.id, editingSocialMedia);
       setEditingSocialMedia(null);
@@ -491,38 +491,38 @@ export default function AdminPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <input
                                 type="text"
-                                value={editingSocialMedia.platform}
-                                onChange={(e) => setEditingSocialMedia({
-                                  ...editingSocialMedia,
+                                value={editingSocialMedia?.platform || ''}
+                                onChange={(e) => setEditingSocialMedia(prev => prev ? {
+                                  ...prev,
                                   platform: e.target.value
-                                })}
+                                } : prev)}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                               />
                               <input
                                 type="url"
-                                value={editingSocialMedia.url}
-                                onChange={(e) => setEditingSocialMedia({
-                                  ...editingSocialMedia,
+                                value={editingSocialMedia?.url || ''}
+                                onChange={(e) => setEditingSocialMedia(prev => prev ? {
+                                  ...prev,
                                   url: e.target.value
-                                })}
+                                } : prev)}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                               />
                               <input
                                 type="text"
-                                value={editingSocialMedia.username}
-                                onChange={(e) => setEditingSocialMedia({
-                                  ...editingSocialMedia,
+                                value={editingSocialMedia?.username || ''}
+                                onChange={(e) => setEditingSocialMedia(prev => prev ? {
+                                  ...prev,
                                   username: e.target.value
-                                })}
+                                } : prev)}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                               />
                               <input
                                 type="text"
-                                value={editingSocialMedia.icon}
-                                onChange={(e) => setEditingSocialMedia({
-                                  ...editingSocialMedia,
+                                value={editingSocialMedia?.icon || ''}
+                                onChange={(e) => setEditingSocialMedia(prev => prev ? {
+                                  ...prev,
                                   icon: e.target.value
-                                })}
+                                } : prev)}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                               />
                             </div>
