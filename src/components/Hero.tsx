@@ -155,7 +155,14 @@ export default function Hero() {
             </div>
             <div>
               <h4 className="text-sm font-medium text-gray-500 dark:text-gray-300">Curriculum Vitae</h4>
-              <a href="public/Documents/CV_Felipe_Zuñiga.pdf" className="mt-2 text-blue-500">Descargar Curriculum Vitae</a>
+              <a 
+                href="/Documents/CV_Felipe_Zuniga.pdf" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                Descargar Curriculum Vitae
+              </a>
             </div>
             <div className="md:col-span-2">
               <h4 className="text-sm font-medium text-gray-500 dark:text-gray-300">Ubicación</h4>
