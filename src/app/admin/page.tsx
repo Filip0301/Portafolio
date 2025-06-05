@@ -32,8 +32,7 @@ export default function AdminPage() {
     description: '',
     email: '',
     phone: '',
-    location: '',
-    social_media: []
+    location: ''
   });
   const [newSkill, setNewSkill] = useState<Skill>({
     name: '',
@@ -101,8 +100,7 @@ export default function AdminPage() {
         description: info.description || '',
         email: info.email || '',
         phone: info.phone || '',
-        location: info.location || '',
-        social_media: info.social_media || []
+        location: info.location || ''
       });
     }
   };
