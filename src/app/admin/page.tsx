@@ -124,14 +124,8 @@ export default function AdminPage() {
   const handlePersonalInfoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Asegurarse de que social_media existe y es un array
-      const updatedPersonalInfo = {
-        ...personalInfo,
-        social_media: personalInfo.social_media || []
-      };
-      
-      await createOrUpdatePersonalInfo(updatedPersonalInfo);
-      setPersonalInfo(updatedPersonalInfo);
+      await createOrUpdatePersonalInfo(personalInfo);
+      setPersonalInfo(personalInfo);
       alert('Información personal actualizada con éxito');
     } catch (error) {
       console.error('Error al actualizar información personal:', error);
