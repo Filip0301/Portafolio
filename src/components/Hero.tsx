@@ -153,6 +153,10 @@ export default function Hero() {
               <h4 className="text-sm font-medium text-gray-500 dark:text-gray-300">Teléfono</h4>
               <p className="mt-2 text-gray-900 dark:text-white">{personalInfo.phone}</p>
             </div>
+            <div>
+              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-300">Curriculum Vitae</h4>
+              <a href="public/Documents/CV_Felipe_Zuñiga.pdf" className="mt-2 text-blue-500">Descargar Curriculum Vitae</a>
+            </div>
             <div className="md:col-span-2">
               <h4 className="text-sm font-medium text-gray-500 dark:text-gray-300">Ubicación</h4>
               <p className="mt-2 text-gray-900 dark:text-white">{personalInfo.location}</p>
@@ -228,11 +232,11 @@ export default function Hero() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-20 min-h-screen flex flex-col">
         <div className="relative p-6 md:p-8 flex-1">
           {/* Esquina superior derecha */}
-          <div className="absolute top-0 right-0 w-[40%] sm:w-[45%] md:w-[50%] h-[20%] sm:h-[25%] md:h-[30%] border-t-4 border-r-4 border-blue-900 dark:border-gray-700 rounded-tr-lg"></div>
+          <div className="absolute top-0 right-0 w-[40%] sm:w-[45%] md:w-[50%] h-[20%] sm:h-[25%] md:h-[30%] border-t-4 border-r-4 border-blue-900 dark:border-gray-700 rounded-tr-lg pointer-events-none"></div>
           {/* Esquina inferior izquierda */}
-          <div className="absolute bottom-0 left-0 w-[40%] sm:w-[45%] md:w-[50%] h-[20%] sm:h-[25%] md:h-[30%] border-b-4 border-l-4 border-blue-900 dark:border-gray-700 rounded-bl-lg"></div>
+          <div className="absolute bottom-0 left-0 w-[40%] sm:w-[45%] md:w-[50%] h-[20%] sm:h-[25%] md:h-[30%] border-b-4 border-l-4 border-blue-900 dark:border-gray-700 rounded-bl-lg pointer-events-none"></div>
           
-          <div className="text-center">
+          <div className="text-center relative z-10">
             <h1 className="text-3xl md:text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
               {personalInfo.name}
             </h1>
@@ -241,12 +245,16 @@ export default function Hero() {
             </p>
           </div>
 
-          <Navigation 
-            currentSection={currentSection}
-            onSectionChange={setCurrentSection}
-          />
+          <div className="relative z-10">
+            <Navigation 
+              currentSection={currentSection}
+              onSectionChange={setCurrentSection}
+            />
+          </div>
 
-          {renderSection()}
+          <div className="relative z-10">
+            {renderSection()}
+          </div>
         </div>
       </div>
     </section>
