@@ -6,7 +6,7 @@ import ThemeToggle from '../components/ThemeToggle'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Mi Portafolio',
+  title: 'Felipe Zuñiga | Ingeniero en Informática',
   description: 'Portafolio profesional',
 }
 
@@ -25,9 +25,9 @@ export default function RootLayout({
         <ThemeToggle />
         
         {/* Contenido principal */}
-        <main className="relative z-10 min-h-screen">
-          {children}
-        </main>
+
+            {children}
+
       </body>
     </html>
   )

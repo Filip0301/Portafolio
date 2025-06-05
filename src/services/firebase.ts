@@ -3,6 +3,7 @@ import { db } from '../config/firebase';
 
 // Tipos
 export interface SocialMedia {
+  id?: string;
   platform: string;
   url: string;
   username: string;
@@ -17,7 +18,6 @@ export interface PersonalInfo {
   email: string;
   phone: string;
   location: string;
-  social_media: SocialMedia[];
 }
 
 export interface Skill {
@@ -44,13 +44,8 @@ export interface Certification {
 // Funciones para PersonalInfo
 export const createOrUpdatePersonalInfo = async (data: PersonalInfo) => {
   try {
-    const dataToSave = {
-      ...data,
-      social_media: data.social_media || []
-    };
-    
     const docRef = doc(db, 'personal_info', 'main');
-    await setDoc(docRef, dataToSave);
+    await setDoc(docRef, data);
     return { success: true };
   } catch (error) {
     console.error('Error creating/updating personal info:', error);
@@ -66,6 +61,51 @@ export const getPersonalInfo = async (): Promise<PersonalInfo | null> => {
   } catch (error) {
     console.error('Error getting personal info:', error);
     return null;
+  }
+};
+
+// Funciones para Social Media
+export const getAllSocialMedia = async (): Promise<SocialMedia[]> => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'social_media'));
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as SocialMedia[];
+  } catch (error) {
+    console.error('Error getting social media:', error);
+    return [];
+  }
+};
+
+export const addSocialMedia = async (socialMedia: Omit<SocialMedia, 'id'>) => {
+  try {
+    const docRef = await addDoc(collection(db, 'social_media'), socialMedia);
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error adding social media:', error);
+    return { success: false, error };
+  }
+};
+
+export const updateSocialMedia = async (id: string, data: Partial<SocialMedia>) => {
+  try {
+    const docRef = doc(db, 'social_media', id);
+    await updateDoc(docRef, data);
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating social media:', error);
+    return { success: false, error };
+  }
+};
+
+export const deleteSocialMedia = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, 'social_media', id));
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting social media:', error);
+    return { success: false, error };
   }
 };
 

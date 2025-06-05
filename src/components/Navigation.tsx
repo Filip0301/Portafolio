@@ -25,8 +25,8 @@ export default function Navigation({ currentSection, onSectionChange }: Navigati
             onClick={() => onSectionChange(section.id)}
             className={`px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium transition-colors duration-200 mb-2 ${
               currentSection === section.id
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
+                ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:border-gray-700'
             }`}
           >
             {section.label}

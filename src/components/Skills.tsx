@@ -62,8 +62,8 @@ export default function Skills() {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-3 md:px-4 py-2 rounded-full text-xs md:text-sm font-medium mb-2 transition-all duration-200 ${
                   selectedCategory === category
-                    ? 'bg-gray-900 text-white dark:bg-white dark:text-black'
-                    : 'bg-gray-200 dark:bg-black/40 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-black/60 border border-gray-300 dark:border-gray-700'
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300 dark:bg-black/40 dark:text-gray-300 dark:hover:bg-black/60 dark:border-gray-700'
                 }`}
               >
                 {category}

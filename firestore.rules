@@ -24,6 +24,12 @@ service cloud.firestore {
       allow read: if true;  // Lectura pública
       allow write: if isAuthenticated();  // Solo escritura para usuarios autenticados
     }
+
+    // Reglas para la colección de redes sociales
+    match /social_media/{social} {
+      allow read: if true;  // Lectura pública
+      allow write: if isAuthenticated();  // Solo escritura para usuarios autenticados
+    }
     
     // Regla por defecto: denegar todo lo demás
     match /{document=**} {

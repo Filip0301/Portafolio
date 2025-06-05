@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { PersonalInfo, Skill, Certification, createOrUpdatePersonalInfo, getAllSkills, updateSkill, deleteSkill, getAllCertifications, updateCertification, deleteCertification, getPersonalInfo } from '../../services/firebase';
+import { PersonalInfo, Skill, Certification, SocialMedia, createOrUpdatePersonalInfo, getAllSkills, updateSkill, deleteSkill, getAllCertifications, updateCertification, deleteCertification, getPersonalInfo, getAllSocialMedia, addSocialMedia, updateSocialMedia, deleteSocialMedia } from '../../services/firebase';
 import { auth } from '../../config/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { collection, addDoc } from 'firebase/firestore';
@@ -52,16 +52,19 @@ export default function AdminPage() {
     credential_url: '',
     image_url: ''
   });
-  const [socialMedia, setSocialMedia] = useState({
+  const [socialMediaList, setSocialMediaList] = useState<SocialMedia[]>([]);
+  const [newSocialMedia, setNewSocialMedia] = useState<Omit<SocialMedia, 'id'>>({
     platform: '',
     url: '',
     username: '',
-    icon: ''
+    icon: '',
+    isActive: true
   });
   const [skills, setSkills] = useState<Skill[]>([]);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
   const [certifications, setCertifications] = useState<Certification[]>([]);
   const [editingCertification, setEditingCertification] = useState<Certification | null>(null);
+  const [editingSocialMedia, setEditingSocialMedia] = useState<SocialMedia | null>(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -75,6 +78,7 @@ export default function AdminPage() {
       loadSkills();
       loadCertifications();
       loadPersonalInfo();
+      loadSocialMedia();
     }
   }, [isAuthenticated]);
 
@@ -101,6 +105,11 @@ export default function AdminPage() {
         social_media: info.social_media || []
       });
     }
+  };
+
+  const loadSocialMedia = async () => {
+    const loadedSocialMedia = await getAllSocialMedia();
+    setSocialMediaList(loadedSocialMedia);
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -169,23 +178,21 @@ export default function AdminPage() {
   };
 
   const handleAddSocialMedia = async () => {
-    if (!socialMedia.platform || !socialMedia.url) {
+    if (!newSocialMedia.platform || !newSocialMedia.url) {
       alert('Por favor, completa al menos la plataforma y la URL');
       return;
     }
 
-    const updatedPersonalInfo = {
-      ...personalInfo,
-      social_media: [
-        ...personalInfo.social_media,
-        { ...socialMedia, isActive: true }
-      ]
-    };
-
     try {
-      await createOrUpdatePersonalInfo(updatedPersonalInfo);
-      setPersonalInfo(updatedPersonalInfo);
-      setSocialMedia({ platform: '', url: '', username: '', icon: '' });
+      await addSocialMedia(newSocialMedia);
+      setNewSocialMedia({
+        platform: '',
+        url: '',
+        username: '',
+        icon: '',
+        isActive: true
+      });
+      await loadSocialMedia();
       alert('Red social agregada con éxito');
     } catch (error) {
       console.error('Error al agregar red social:', error);
@@ -272,6 +279,37 @@ export default function AdminPage() {
     }
   };
 
+  const handleEditSocialMedia = (social: SocialMedia) => {
+    setEditingSocialMedia(social);
+  };
+
+  const handleUpdateSocialMedia = async () => {
+    if (!editingSocialMedia?.id) return;
+
+    try {
+      await updateSocialMedia(editingSocialMedia.id, editingSocialMedia);
+      setEditingSocialMedia(null);
+      await loadSocialMedia();
+      alert('Red social actualizada con éxito');
+    } catch (error) {
+      console.error('Error al actualizar red social:', error);
+      alert('Error al actualizar la red social');
+    }
+  };
+
+  const handleDeleteSocialMedia = async (id: string) => {
+    if (window.confirm('¿Estás seguro de que quieres eliminar esta red social?')) {
+      try {
+        await deleteSocialMedia(id);
+        await loadSocialMedia();
+        alert('Red social eliminada con éxito');
+      } catch (error) {
+        console.error('Error al eliminar red social:', error);
+        alert('Error al eliminar la red social');
+      }
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -325,9 +363,9 @@ export default function AdminPage() {
             {/* Formulario de Información Personal */}
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
               <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">
-                {personalInfo.name ? 'Editar' : 'Agregar'} Información Personal
+                Información Personal
               </h2>
-              <form onSubmit={handlePersonalInfoSubmit} className="space-y-4">
+              <form onSubmit={handlePersonalInfoSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
@@ -387,56 +425,6 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                {/* Sección de Redes Sociales */}
-                <div className="mt-6">
-                  <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-4">Redes Sociales</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Plataforma</label>
-                      <input
-                        type="text"
-                        value={socialMedia.platform}
-                        onChange={(e) => setSocialMedia({...socialMedia, platform: e.target.value})}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">URL</label>
-                      <input
-                        type="url"
-                        value={socialMedia.url}
-                        onChange={(e) => setSocialMedia({...socialMedia, url: e.target.value})}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Usuario</label>
-                      <input
-                        type="text"
-                        value={socialMedia.username}
-                        onChange={(e) => setSocialMedia({...socialMedia, username: e.target.value})}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Icono</label>
-                      <input
-                        type="text"
-                        value={socialMedia.icon}
-                        onChange={(e) => setSocialMedia({...socialMedia, icon: e.target.value})}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      />
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleAddSocialMedia}
-                    className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                  >
-                    Agregar Red Social
-                  </button>
-                </div>
-
                 <div className="mt-6">
                   <button
                     type="submit"
@@ -446,6 +434,150 @@ export default function AdminPage() {
                   </button>
                 </div>
               </form>
+            </div>
+
+            {/* Formulario de Redes Sociales */}
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+              <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">
+                Redes Sociales
+              </h2>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Plataforma</label>
+                    <input
+                      type="text"
+                      value={newSocialMedia.platform}
+                      onChange={(e) => setNewSocialMedia({...newSocialMedia, platform: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">URL</label>
+                    <input
+                      type="url"
+                      value={newSocialMedia.url}
+                      onChange={(e) => setNewSocialMedia({...newSocialMedia, url: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Usuario</label>
+                    <input
+                      type="text"
+                      value={newSocialMedia.username}
+                      onChange={(e) => setNewSocialMedia({...newSocialMedia, username: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Icono</label>
+                    <input
+                      type="text"
+                      value={newSocialMedia.icon}
+                      onChange={(e) => setNewSocialMedia({...newSocialMedia, icon: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddSocialMedia}
+                  className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                >
+                  Agregar Red Social
+                </button>
+
+                {/* Lista de Redes Sociales */}
+                <div className="mt-6">
+                  <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-4">Redes Sociales Existentes</h3>
+                  <div className="space-y-4">
+                    {socialMediaList.map((social) => (
+                      <div key={social.id} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                        {editingSocialMedia?.id === social.id ? (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <input
+                                type="text"
+                                value={editingSocialMedia.platform}
+                                onChange={(e) => setEditingSocialMedia({
+                                  ...editingSocialMedia,
+                                  platform: e.target.value
+                                })}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                              />
+                              <input
+                                type="url"
+                                value={editingSocialMedia.url}
+                                onChange={(e) => setEditingSocialMedia({
+                                  ...editingSocialMedia,
+                                  url: e.target.value
+                                })}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                              />
+                              <input
+                                type="text"
+                                value={editingSocialMedia.username}
+                                onChange={(e) => setEditingSocialMedia({
+                                  ...editingSocialMedia,
+                                  username: e.target.value
+                                })}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                              />
+                              <input
+                                type="text"
+                                value={editingSocialMedia.icon}
+                                onChange={(e) => setEditingSocialMedia({
+                                  ...editingSocialMedia,
+                                  icon: e.target.value
+                                })}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                              />
+                            </div>
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={handleUpdateSocialMedia}
+                                className="flex items-center space-x-2 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                              >
+                                <FaSave /> <span>Guardar</span>
+                              </button>
+                              <button
+                                onClick={() => setEditingSocialMedia(null)}
+                                className="flex items-center space-x-2 bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                              >
+                                <FaTimes /> <span>Cancelar</span>
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="text-lg font-medium text-gray-800 dark:text-white">{social.platform}</h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-300">
+                                {social.username} • {social.url}
+                              </p>
+                            </div>
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => handleEditSocialMedia(social)}
+                                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                              >
+                                <FaEdit size={20} />
+                              </button>
+                              <button
+                                onClick={() => social.id && handleDeleteSocialMedia(social.id)}
+                                className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                              >
+                                <FaTrash size={20} />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Formulario de Habilidades */}

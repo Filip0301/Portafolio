@@ -2,21 +2,26 @@
 
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { PersonalInfo, getPersonalInfo } from '../services/firebase';
+import { PersonalInfo, SocialMedia, getPersonalInfo, getAllSocialMedia } from '../services/firebase';
 import Navigation from './Navigation';
 import Skills from './Skills';
 import Certifications from './Certifications';
 
 export default function Hero() {
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo | null>(null);
+  const [socialMedia, setSocialMedia] = useState<SocialMedia[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentSection, setCurrentSection] = useState('personal');
 
   useEffect(() => {
-    const loadPersonalInfo = async () => {
+    const loadData = async () => {
       try {
         console.log('Iniciando carga de información personal...');
-        const info = await getPersonalInfo();
+        const [info, social] = await Promise.all([
+          getPersonalInfo(),
+          getAllSocialMedia()
+        ]);
+        
         console.log('Información personal recibida:', info);
         if (!info) {
           console.log('No hay datos en Firestore, usando datos por defecto');
@@ -26,32 +31,30 @@ export default function Hero() {
             description: 'Bienvenido a mi portafolio. La información está siendo configurada.',
             email: 'ejemplo@email.com',
             phone: '+56 9 1234 5678',
-            location: 'Chile',
-            social_media: []
+            location: 'Chile'
           });
         } else {
-          setPersonalInfo({
-            ...info,
-            social_media: info.social_media || []
-          });
+          setPersonalInfo(info);
         }
+        
+        setSocialMedia(social);
       } catch (error) {
-        console.error('Error detallado al cargar información personal:', error);
+        console.error('Error detallado al cargar información:', error);
         setPersonalInfo({
           name: 'Felipe',
           title: 'Desarrollador Web Full Stack',
           description: 'Error al cargar la información. Por favor, intenta más tarde.',
           email: 'ejemplo@email.com',
           phone: '+56 9 1234 5678',
-          location: 'Chile',
-          social_media: []
+          location: 'Chile'
         });
+        setSocialMedia([]);
       } finally {
         setLoading(false);
       }
     };
 
-    loadPersonalInfo();
+    loadData();
   }, []);
 
   if (loading) {
@@ -103,6 +106,33 @@ export default function Hero() {
                 {personalInfo.location}
               </dd>
             </div>
+            {socialMedia.length > 0 && (
+              <div className="bg-gray-50 dark:bg-black/20 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-300">Redes Sociales</dt>
+                <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                  <div className="flex flex-wrap gap-4">
+                    {socialMedia.map((social, index) => (
+                      <a
+                        key={social.id || index}
+                        href={social.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        {social.icon && (
+                          <img
+                            src={social.icon}
+                            alt={social.platform}
+                            className="w-5 h-5 object-contain"
+                          />
+                        )}
+                        <span>{social.platform}</span>
+                      </a>
+                    ))}
+                  </div>
+                </dd>
+              </div>
+            )}
           </dl>
         </div>
       </div>
@@ -114,29 +144,6 @@ export default function Hero() {
       <div className="bg-white dark:bg-black/40 backdrop-blur-sm shadow-lg rounded-lg p-6 border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Contacto</h3>
         <div className="space-y-6">
-          {/* Temporalmente oculto la sección de redes sociales
-          {personalInfo.social_media && personalInfo.social_media.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-300">Redes Sociales</h4>
-              <div className="mt-4 flex space-x-6 justify-center">
-                {personalInfo.social_media.map((social, index) => (
-                  <a
-                    key={index}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors duration-200"
-                  >
-                    <span className="sr-only">{social.platform}</span>
-                    {socialIcons[social.platform.toLowerCase()] || (
-                      <span className="w-6 h-6 block">{social.platform[0]}</span>
-                    )}
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-          */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h4 className="text-sm font-medium text-gray-500 dark:text-gray-300">Email</h4>
@@ -149,6 +156,29 @@ export default function Hero() {
             <div className="md:col-span-2">
               <h4 className="text-sm font-medium text-gray-500 dark:text-gray-300">Ubicación</h4>
               <p className="mt-2 text-gray-900 dark:text-white">{personalInfo.location}</p>
+            </div>
+            <div>
+              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-300">Redes Sociales</h4>
+              <div className="flex flex-wrap gap-4">
+                    {socialMedia.map((social, index) => (
+                      <a
+                        key={social.id || index}
+                        href={social.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        {social.icon && (
+                          <img
+                            src={social.icon}
+                            alt={social.platform}
+                            className="w-5 h-5 object-contain"
+                          />
+                        )}
+                        <span>{social.platform}</span>
+                      </a>
+                    ))}
+                  </div>
             </div>
           </div>
         </div>
@@ -196,21 +226,28 @@ export default function Hero() {
   return (
     <section className="relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-20 min-h-screen flex flex-col">
-        <div className="text-center">
-          <h1 className="text-3xl md:text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
-            {personalInfo.name}
-          </h1>
-          <p className="mt-3 max-w-md mx-auto text-sm md:text-base text-gray-500 dark:text-gray-300 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-            {personalInfo.title}
-          </p>
+        <div className="relative p-6 md:p-8 flex-1">
+          {/* Esquina superior derecha */}
+          <div className="absolute top-0 right-0 w-[40%] sm:w-[45%] md:w-[50%] h-[20%] sm:h-[25%] md:h-[30%] border-t-4 border-r-4 border-blue-900 dark:border-gray-700 rounded-tr-lg"></div>
+          {/* Esquina inferior izquierda */}
+          <div className="absolute bottom-0 left-0 w-[40%] sm:w-[45%] md:w-[50%] h-[20%] sm:h-[25%] md:h-[30%] border-b-4 border-l-4 border-blue-900 dark:border-gray-700 rounded-bl-lg"></div>
+          
+          <div className="text-center">
+            <h1 className="text-3xl md:text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
+              {personalInfo.name}
+            </h1>
+            <p className="mt-3 max-w-md mx-auto text-sm md:text-base text-gray-500 dark:text-gray-300 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+              {personalInfo.title}
+            </p>
+          </div>
+
+          <Navigation 
+            currentSection={currentSection}
+            onSectionChange={setCurrentSection}
+          />
+
+          {renderSection()}
         </div>
-
-        <Navigation 
-          currentSection={currentSection}
-          onSectionChange={setCurrentSection}
-        />
-
-        {renderSection()}
       </div>
     </section>
   );

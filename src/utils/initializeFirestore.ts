@@ -10,8 +10,7 @@ export async function initializeCollections() {
       description: '',
       email: '',
       phone: '',
-      location: '',
-      social_media: []
+      location: ''
     }, { merge: true });
 
     console.log('Colecciones inicializadas correctamente');
