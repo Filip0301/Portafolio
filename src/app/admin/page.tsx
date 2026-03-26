@@ -1057,8 +1057,21 @@ export default function AdminPage() {
                                 description: e.target.value
                               });
                             }}
-                            rows={4}
+                            rows={3}
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          />
+                          <input
+                            type="url"
+                            value={editingCertification.credential_url || ''}
+                            onChange={(e) => {
+                              if (editingCertification === null) return;
+                              setEditingCertification({
+                                ...editingCertification,
+                                credential_url: e.target.value
+                              });
+                            }}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            placeholder="URL del Certificado"
                           />
                           <div className="flex space-x-2">
                             <button

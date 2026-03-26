@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { cn } from '../../lib/utils';
 
 import ThemeToggle from '../ui/ThemeToggle';
@@ -17,6 +19,7 @@ export default function Navbar() {
   const [scrolled, setScrolled]   = useState(false);
   const [menuOpen, setMenuOpen]   = useState(false);
   const [active,   setActive]     = useState('');
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -31,6 +34,10 @@ export default function Navbar() {
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <header
       className={cn(
@@ -42,13 +49,18 @@ export default function Navbar() {
     >
       <div className="section-container flex items-center justify-between h-16">
         {/* Logo */}
-        <a
-          href="#"
-          onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+        <Link
+          href="/"
+          onClick={(e) => { 
+            if (pathname === '/') { 
+              e.preventDefault(); 
+              window.scrollTo({ top: 0, behavior: 'smooth' }); 
+            } 
+          }}
           className="font-heading font-bold text-lg text-[var(--color-text)] hover:text-brand transition-colors duration-150"
         >
           Felipe<span className="text-brand">.</span>
-        </a>
+        </Link>
 
         {/* Desktop nav + actions */}
         <div className="flex items-center gap-2">

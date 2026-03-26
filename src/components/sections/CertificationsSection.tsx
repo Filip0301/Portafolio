@@ -1,14 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useCertifications } from '../../hooks/useCertifications';
 import SectionHeader from '../ui/SectionHeader';
 import Card from '../ui/Card';
 import LoadingSpinner from '../ui/LoadingSpinner';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
 
 export default function CertificationsSection() {
   const { certifications, loading, error } = useCertifications();
+  const [selectedCertUrl, setSelectedCertUrl] = useState<string | null>(null);
 
   return (
     <section id="certifications" className="py-[var(--section-padding)] bg-[var(--color-surface)]/40">
@@ -78,20 +79,37 @@ export default function CertificationsSection() {
                   {/* Credential link */}
                   {cert.credential_url && (
                     <div className="mt-auto pt-2">
-                      <a
-                        href={cert.credential_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() => setSelectedCertUrl(cert.credential_url!)}
                         className="inline-flex items-center gap-2 text-xs text-brand hover:text-brand-400 transition-colors font-medium"
                       >
                         Ver credencial
                         <FaExternalLinkAlt size={10} />
-                      </a>
+                      </button>
                     </div>
                   )}
                 </div>
               </Card>
             ))}
+          </div>
+        )}
+
+        {selectedCertUrl && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedCertUrl(null)}>
+            <div className="relative max-w-4xl w-full h-[85vh] bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-2 shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+              <button
+                 onClick={() => setSelectedCertUrl(null)}
+                 className="absolute top-4 right-6 z-10 bg-black/60 text-white p-2.5 rounded-full hover:bg-brand transition-colors"
+                 aria-label="Cerrar modal"
+              >
+                <FaTimes size={16} />
+              </button>
+              <iframe 
+                 src={selectedCertUrl} 
+                 className="w-full h-full rounded-xl bg-white" 
+                 title="Certificado Digital"
+              />
+            </div>
           </div>
         )}
       </div>
