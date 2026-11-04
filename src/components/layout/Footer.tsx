@@ -1,5 +1,6 @@
 import React from 'react';
 import { normalizeUrl } from '../../lib/utils';
+import { SITE_NAME } from '../../lib/site';
 import type { SocialMedia } from '../../types/portfolio';
 
 // Solo se usan si Firestore no devuelve redes sociales.
@@ -18,7 +19,7 @@ export default function Footer({ socialMedia }: { socialMedia: SocialMedia[] }) 
     <footer className="border-t border-[var(--color-border)] bg-[var(--color-surface)]">
       <div className="section-container py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-sm text-[var(--color-text-subtle)]">
-          {`© ${year} Felipe Ismael Torres Ponce de León — Diseñado & desarrollado con Next.js`}
+          {`© ${year} ${SITE_NAME} — Diseñado & desarrollado con Next.js`}
         </p>
         <div className="flex items-center gap-6">
           {links.map(({ label, href }) => (

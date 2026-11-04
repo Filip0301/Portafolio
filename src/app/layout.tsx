@@ -5,18 +5,26 @@ import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import Analytics from '../components/Analytics';
 import { getPortfolioData } from '../lib/portfolioData';
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '../lib/site';
 
 export const metadata: Metadata = {
-  title: 'Felipe Ismael Torres Ponce de León | Data Analyst & Full Stack Developer',
-  description:
-    'Portafolio de Felipe Ismael Torres Ponce de León — Ingeniero en Informática especializado en análisis de datos, BI y desarrollo web full stack.',
-  keywords: ['data analyst', 'full stack developer', 'React', 'Next.js', 'Python', 'SQL', 'Chile'],
-  authors: [{ name: 'Felipe Ismael Torres Ponce de León' }],
+  metadataBase: new URL(SITE_URL),
+  title: { default: SITE_TITLE, template: `%s | ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  keywords: ['data analyst', 'business intelligence', 'power bi', 'full stack developer', 'React', 'Next.js', 'Python', 'SQL', 'Chile'],
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
   openGraph: {
-    title: 'Felipe Ismael Torres Ponce de León | Data Analyst & Full Stack Developer',
-    description: 'Portafolio de Felipe Ismael Torres Ponce de León — Data Analyst & Full Stack Developer',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: '/',
+    siteName: SITE_NAME,
     type: 'website',
     locale: 'es_CL',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
   },
   robots: { index: true, follow: true },
 };
@@ -37,9 +45,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body className="relative bg-[var(--color-bg)] text-[var(--color-text)]" suppressHydrationWarning>
+        <a
+          href="#contenido"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-brand focus:text-white"
+        >
+          Saltar al contenido
+        </a>
         <ThemeProvider>
           <Navbar />
-          <main>{children}</main>
+          <main id="contenido">{children}</main>
           <Footer socialMedia={socialMedia} />
         </ThemeProvider>
         <Analytics />

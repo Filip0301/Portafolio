@@ -22,9 +22,19 @@ export default function HeroSection({ info, socialMedia }: HeroSectionProps) {
   const [displayed, setDisplayed]     = useState('');
   const [charIdx, setCharIdx]         = useState(0);
   const [deleting, setDeleting]       = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
 
-  // Typewriter effect
   useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReduceMotion(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+
+  // Typewriter effect (se desactiva si el sistema pide reducir el movimiento)
+  useEffect(() => {
+    if (reduceMotion) return;
     const current = ROLES[roleIndex];
     if (!deleting && charIdx <= current.length) {
       const t = setTimeout(() => {
@@ -49,7 +59,7 @@ export default function HeroSection({ info, socialMedia }: HeroSectionProps) {
       setCharIdx(0);
       setRoleIndex(i => (i + 1) % ROLES.length);
     }
-  }, [charIdx, deleting, roleIndex]);
+  }, [charIdx, deleting, roleIndex, reduceMotion]);
 
   const scrollTo = (id: string) => {
     const el = document.querySelector(id);
@@ -96,8 +106,14 @@ export default function HeroSection({ info, socialMedia }: HeroSectionProps) {
             {/* Animated role */}
             <div className="h-12 sm:h-14 flex items-center justify-center mb-6 animate-slide-up delay-100">
               <span className="font-heading text-2xl sm:text-3xl md:text-4xl font-medium text-gradient">
-                {displayed}
-                <span className="inline-block w-0.5 h-7 ml-0.5 bg-brand align-middle animate-type-cursor" />
+                {/* Los lectores de pantalla leen la lista completa, no letras sueltas */}
+                <span className="sr-only">{ROLES.join(', ')}</span>
+                <span aria-hidden="true">
+                  {reduceMotion ? ROLES[0] : displayed}
+                  {!reduceMotion && (
+                    <span className="inline-block w-0.5 h-7 ml-0.5 bg-brand align-middle animate-type-cursor" />
+                  )}
+                </span>
               </span>
             </div>
 

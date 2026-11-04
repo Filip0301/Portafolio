@@ -94,6 +94,7 @@ export default function ProjectsSection({ projects: firebaseProjects }: { projec
         <div className="flex flex-wrap gap-2 mb-8">
           <button
             onClick={() => setActiveDiscipline('')}
+            aria-pressed={!activeDiscipline}
             className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-150 ${
               !activeDiscipline
                 ? 'bg-brand text-white shadow-md shadow-brand/20'
@@ -106,6 +107,7 @@ export default function ProjectsSection({ projects: firebaseProjects }: { projec
             <button
               key={discipline}
               onClick={() => setActiveDiscipline(discipline === activeDiscipline ? '' : discipline)}
+              aria-pressed={activeDiscipline === discipline}
               className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-150 ${
                 activeDiscipline === discipline
                   ? 'bg-brand text-white shadow-md shadow-brand/20'
@@ -139,7 +141,7 @@ export default function ProjectsSection({ projects: firebaseProjects }: { projec
                       href={normalizeUrl(project.github_url)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label="GitHub"
+                      aria-label={`Código de ${project.title} en GitHub`}
                       className="text-[var(--color-text-subtle)] hover:text-brand transition-colors"
                     >
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -152,7 +154,7 @@ export default function ProjectsSection({ projects: firebaseProjects }: { projec
                       href={normalizeUrl(project.live_url)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label="Live demo"
+                      aria-label={`Ver demo de ${project.title}`}
                       className="text-[var(--color-text-subtle)] hover:text-brand transition-colors"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -10,7 +10,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      aria-label="Toggle Dark Mode"
+      aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
       className={cn(
         'p-2 rounded-lg transition-colors duration-200',
         'text-[var(--color-text-muted)] hover:text-brand hover:bg-brand/10'
