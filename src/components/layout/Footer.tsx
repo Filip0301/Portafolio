@@ -1,8 +1,6 @@
-'use client';
-
 import React from 'react';
-import { usePersonalInfo } from '../../hooks/usePersonalInfo';
 import { normalizeUrl } from '../../lib/utils';
+import type { SocialMedia } from '../../types/portfolio';
 
 // Solo se usan si Firestore no devuelve redes sociales.
 const FALLBACK_LINKS = [
@@ -10,13 +8,10 @@ const FALLBACK_LINKS = [
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/felipe-ismael-zuñiga-torres-239272252' },
 ];
 
-export default function Footer() {
+export default function Footer({ socialMedia }: { socialMedia: SocialMedia[] }) {
   const year = new Date().getFullYear();
-  const { socialMedia } = usePersonalInfo();
 
-  const firestoreLinks = socialMedia
-    .filter((s) => s.isActive && s.url)
-    .map((s) => ({ label: s.platform, href: normalizeUrl(s.url) }));
+  const firestoreLinks = socialMedia.map((s) => ({ label: s.platform, href: normalizeUrl(s.url) }));
   const links = firestoreLinks.length > 0 ? firestoreLinks : FALLBACK_LINKS;
 
   return (

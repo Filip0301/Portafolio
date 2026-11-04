@@ -49,7 +49,7 @@ export const createOrUpdatePersonalInfo = async (data: PersonalInfo) => {
     return { success: true };
   } catch (error) {
     console.error('Error creating/updating personal info:', error);
-    return { success: false, error };
+    throw error; // que el admin muestre el error en vez de "éxito"
   }
 };
 
@@ -84,7 +84,7 @@ export const addSocialMedia = async (socialMedia: Omit<SocialMedia, 'id'>) => {
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error('Error adding social media:', error);
-    return { success: false, error };
+    throw error; // que el admin muestre el error en vez de "éxito"
   }
 };
 
@@ -95,7 +95,7 @@ export const updateSocialMedia = async (id: string, data: Partial<SocialMedia>) 
     return { success: true };
   } catch (error) {
     console.error('Error updating social media:', error);
-    return { success: false, error };
+    throw error; // que el admin muestre el error en vez de "éxito"
   }
 };
 
@@ -105,7 +105,7 @@ export const deleteSocialMedia = async (id: string) => {
     return { success: true };
   } catch (error) {
     console.error('Error deleting social media:', error);
-    return { success: false, error };
+    throw error; // que el admin muestre el error en vez de "éxito"
   }
 };
 
@@ -130,7 +130,7 @@ export const updateSkill = async (skillId: string, skillData: Partial<Skill>) =>
     return { success: true };
   } catch (error) {
     console.error('Error updating skill:', error);
-    return { success: false, error };
+    throw error; // que el admin muestre el error en vez de "éxito"
   }
 };
 
@@ -140,7 +140,7 @@ export const deleteSkill = async (skillId: string) => {
     return { success: true };
   } catch (error) {
     console.error('Error deleting skill:', error);
-    return { success: false, error };
+    throw error; // que el admin muestre el error en vez de "éxito"
   }
 };
 
@@ -165,7 +165,7 @@ export const updateCertification = async (certId: string, certData: Partial<Cert
     return { success: true };
   } catch (error) {
     console.error('Error updating certification:', error);
-    return { success: false, error };
+    throw error; // que el admin muestre el error en vez de "éxito"
   }
 };
 
@@ -175,7 +175,7 @@ export const deleteCertification = async (certId: string) => {
     return { success: true };
   } catch (error) {
     console.error('Error deleting certification:', error);
-    return { success: false, error };
+    throw error; // que el admin muestre el error en vez de "éxito"
   }
 };
 
@@ -202,7 +202,7 @@ export const addProject = async (project: Omit<Project, 'id'>) => {
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error('Error adding project:', error);
-    return { success: false, error };
+    throw error; // que el admin muestre el error en vez de "éxito"
   }
 };
 
@@ -213,7 +213,7 @@ export const updateProject = async (projectId: string, projectData: Partial<Proj
     return { success: true };
   } catch (error) {
     console.error('Error updating project:', error);
-    return { success: false, error };
+    throw error; // que el admin muestre el error en vez de "éxito"
   }
 };
 
@@ -223,6 +223,6 @@ export const deleteProject = async (projectId: string) => {
     return { success: true };
   } catch (error) {
     console.error('Error deleting project:', error);
-    return { success: false, error };
+    throw error; // que el admin muestre el error en vez de "éxito"
   }
 };

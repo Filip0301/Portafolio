@@ -1,9 +1,6 @@
-'use client';
-
 import React from 'react';
-import { usePersonalInfo } from '../../hooks/usePersonalInfo';
 import SectionHeader from '../ui/SectionHeader';
-import LoadingSpinner from '../ui/LoadingSpinner';
+import type { PersonalInfo } from '../../types/portfolio';
 
 const STATS = [
   { value: '3+',  label: 'Años de experiencia' },
@@ -12,8 +9,7 @@ const STATS = [
   { value: '∞',   label: 'Ganas de aprender' },
 ];
 
-export default function AboutSection() {
-  const { data, loading } = usePersonalInfo();
+export default function AboutSection({ info }: { info: PersonalInfo }) {
 
   return (
     <section id="about" className="py-[var(--section-padding)]">
@@ -27,17 +23,14 @@ export default function AboutSection() {
               subtitle="Combino análisis de datos con desarrollo web para construir soluciones completas, desde la ETL hasta la interfaz de usuario."
             />
 
-            {loading ? (
-              <LoadingSpinner />
-            ) : (
-              <div className="space-y-4 text-[var(--color-text-muted)] leading-relaxed">
+            <div className="space-y-4 text-[var(--color-text-muted)] leading-relaxed">
                 <p>
                   Soy <strong className="text-[var(--color-text)]">Ingeniero en Informática</strong> con pasión
                   por convertir datos en decisiones. Me especializo en análisis de datos, visualización con
                   dashboards interactivos y desarrollo full stack con tecnologías modernas.
                 </p>
                 <p>
-                  {data?.description}
+                  {info.description}
                 </p>
                 <div className="pt-2 flex flex-wrap gap-3">
                   <span className="inline-flex items-center gap-2 text-sm text-brand">
@@ -45,13 +38,13 @@ export default function AboutSection() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    {data?.location ?? 'Chile'}
+                    {info.location}
                   </span>
                   <span className="inline-flex items-center gap-2 text-sm text-brand">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    {data?.email ?? 'torresfelipe305@gmail.com'}
+                    {info.email}
                   </span>
                 </div>
                 <div className="pt-4">
@@ -68,7 +61,6 @@ export default function AboutSection() {
                   </a>
                 </div>
               </div>
-            )}
           </div>
 
           {/* Right: stats */}

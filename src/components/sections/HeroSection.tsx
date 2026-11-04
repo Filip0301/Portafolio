@@ -1,10 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { usePersonalInfo } from '../../hooks/usePersonalInfo';
 import Button from '../ui/Button';
-import LoadingSpinner from '../ui/LoadingSpinner';
 import { normalizeUrl } from '../../lib/utils';
+import type { PersonalInfo, SocialMedia } from '../../types/portfolio';
 
 const ROLES = [
   'Data Analyst',
@@ -13,8 +12,12 @@ const ROLES = [
   'Python Developer',
 ];
 
-export default function HeroSection() {
-  const { data, socialMedia, loading } = usePersonalInfo();
+interface HeroSectionProps {
+  info: PersonalInfo;
+  socialMedia: SocialMedia[];
+}
+
+export default function HeroSection({ info, socialMedia }: HeroSectionProps) {
   const [roleIndex, setRoleIndex]     = useState(0);
   const [displayed, setDisplayed]     = useState('');
   const [charIdx, setCharIdx]         = useState(0);
@@ -78,11 +81,6 @@ export default function HeroSection() {
       />
 
       <div className="section-container relative z-10 text-center pt-24 pb-16">
-        {loading ? (
-          <div className="flex justify-center">
-            <LoadingSpinner size="lg" />
-          </div>
-        ) : (
           <>
             {/* Tagline */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-brand/30 bg-brand/5 text-brand text-sm font-medium mb-8 animate-fade-in">
@@ -92,7 +90,7 @@ export default function HeroSection() {
 
             {/* Name */}
             <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-[var(--color-text)] mb-6 animate-slide-up">
-              {data?.name || 'Felipe Ismael Torres Ponce de León'}
+              {info.name}
             </h1>
 
             {/* Animated role */}
@@ -105,7 +103,7 @@ export default function HeroSection() {
 
             {/* Description */}
             <p className="text-[var(--color-text-muted)] text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed animate-slide-up delay-200">
-              {data?.description}
+              {info.description}
             </p>
 
             {/* CTA buttons */}
@@ -150,12 +148,11 @@ export default function HeroSection() {
               </div>
             )}
           </>
-        )}
 
         {/* Scroll indicator */}
         <button
           onClick={() => scrollTo('#about')}
-          aria-label="Scroll down"
+          aria-label="Ir a Sobre mí"
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-[var(--color-text-subtle)] hover:text-brand transition-colors duration-150 group"
           style={{ animation: 'float 2s ease-in-out infinite' }}
         >

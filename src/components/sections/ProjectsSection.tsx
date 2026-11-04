@@ -66,12 +66,9 @@ const PROJECTS: Project[] = [
   },
 ];
 
-import { useProjects } from '../../hooks/useProjects';
-
 const ALL_STATIC_DISCIPLINES = Array.from(new Set(PROJECTS.flatMap(p => p.disciplines)));
 
-export default function ProjectsSection() {
-  const { projects: firebaseProjects, loading } = useProjects();
+export default function ProjectsSection({ projects: firebaseProjects }: { projects: Project[] }) {
   const [activeDiscipline, setActiveDiscipline] = useState<string>('');
 
   // Fallback to static PROJECTS if Firebase has no projects yet

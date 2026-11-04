@@ -1,19 +1,36 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useCertifications } from '../../hooks/useCertifications';
 import SectionHeader from '../ui/SectionHeader';
 import Card from '../ui/Card';
-import LoadingSpinner from '../ui/LoadingSpinner';
 import { normalizeUrl } from '../../lib/utils';
 import { FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
+import type { Certification } from '../../types/portfolio';
 
-export default function CertificationsSection() {
-  const { certifications, loading, error } = useCertifications();
+const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sept', 'oct', 'nov', 'dic'];
+
+/**
+ * "2024-09-01" → "sept 2024". Se lee la fecha tal cual está guardada: con
+ * new Date("2024-09-01") se interpreta en UTC y en Chile queda en agosto.
+ * Los meses van fijos para que servidor y navegador muestren lo mismo.
+ */
+function formatIssueDate(value: string | undefined): string {
+  const match = /^(\d{4})-(\d{2})/.exec(value ?? '');
+  if (!match) return value ?? '';
+  const month = MONTHS[Number(match[2]) - 1];
+  return month ? `${month} ${match[1]}` : value ?? '';
+}
+
+interface CertificationsSectionProps {
+  certifications: Certification[];
+  error?: boolean;
+}
+
+export default function CertificationsSection({ certifications, error = false }: CertificationsSectionProps) {
   const [selectedCertUrl, setSelectedCertUrl] = useState<string | null>(null);
 
   return (
-    <section id="certifications" className="py-[var(--section-padding)] bg-[var(--color-surface)]/40">
+    <section id="certifications" className="py-[var(--section-padding)] bg-[color:color-mix(in_srgb,var(--color-surface)_40%,transparent)]">
       <div className="section-container">
         <SectionHeader
           number="04. Certificaciones"
@@ -22,11 +39,7 @@ export default function CertificationsSection() {
           centered
         />
 
-        {loading ? (
-          <div className="flex justify-center py-16">
-            <LoadingSpinner size="lg" />
-          </div>
-        ) : error ? (
+        {error ? (
           <p className="text-center text-[var(--color-text-muted)]">Error cargando certificaciones.</p>
         ) : certifications.length === 0 ? (
           <div className="text-center py-16 text-[var(--color-text-muted)]">
@@ -57,7 +70,7 @@ export default function CertificationsSection() {
                         {cert.issuer}
                       </span>
                       <span className="text-xs text-[var(--color-text-subtle)]">
-                        {new Date(cert.issue_date).toLocaleDateString('es-CL', { year: 'numeric', month: 'short' })}
+                        {formatIssueDate(cert.issue_date)}
                       </span>
                     </div>
                     <h3 className="font-medium text-sm text-[var(--color-text)] leading-snug">

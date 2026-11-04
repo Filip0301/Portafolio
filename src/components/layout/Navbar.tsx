@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '../../lib/utils';
 
@@ -20,6 +20,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen]   = useState(false);
   const [active,   setActive]     = useState('');
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -32,6 +33,7 @@ export default function Navbar() {
     setActive(href);
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
+    else router.push(`/${href}`); // p. ej. desde la página 404
   };
 
   if (pathname?.startsWith('/admin')) {
@@ -42,8 +44,8 @@ export default function Navbar() {
     <header
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-        scrolled
-          ? 'bg-[var(--color-surface)]/90 backdrop-blur-md border-b border-[var(--color-border)] shadow-lg shadow-black/20'
+        scrolled || menuOpen
+          ? 'bg-[color:color-mix(in_srgb,var(--color-surface)_90%,transparent)] backdrop-blur-md border-b border-[var(--color-border)] shadow-lg shadow-black/20'
           : 'bg-transparent'
       )}
     >
@@ -103,7 +105,7 @@ export default function Navbar() {
           menuOpen ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'
         )}
       >
-        <nav className="px-4 pb-4 flex flex-col gap-1 bg-[var(--color-surface)]/95 backdrop-blur-md border-b border-[var(--color-border)]">
+        <nav className="px-4 pb-4 flex flex-col gap-1 bg-[color:color-mix(in_srgb,var(--color-surface)_95%,transparent)] backdrop-blur-md border-b border-[var(--color-border)]">
           {NAV_ITEMS.map(({ label, href }) => (
             <button
               key={href}

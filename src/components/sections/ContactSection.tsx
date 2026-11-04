@@ -1,9 +1,6 @@
-'use client';
-
 import React from 'react';
-import { usePersonalInfo } from '../../hooks/usePersonalInfo';
 import SectionHeader from '../ui/SectionHeader';
-import LoadingSpinner from '../ui/LoadingSpinner';
+import { SocialIcon } from '../ui/TechIcon';
 import { normalizeUrl } from '../../lib/utils';
 import { PersonalInfo, SocialMedia } from '../../types/portfolio';
 
@@ -35,7 +32,7 @@ const CONTACT_ITEMS: ContactItem[] = [
     ),
     label: 'Teléfono',
     getValue: (d) => d.phone,
-    getHref:  (d) => `tel:${d.phone}`,
+    getHref:  (d) => `tel:${d.phone.replace(/[^\d+]/g, '')}`,
   },
   {
     icon: (
@@ -52,8 +49,12 @@ const CONTACT_ITEMS: ContactItem[] = [
   },
 ];
 
-export default function ContactSection() {
-  const { data, socialMedia, loading } = usePersonalInfo();
+interface ContactSectionProps {
+  info: PersonalInfo;
+  socialMedia: SocialMedia[];
+}
+
+export default function ContactSection({ info: data, socialMedia }: ContactSectionProps) {
 
   return (
     <section id="contact" className="py-[var(--section-padding)]">
@@ -65,9 +66,6 @@ export default function ContactSection() {
             subtitle="¿Tienes un proyecto de datos o desarrollo web en mente? Hablemos."
           />
 
-          {loading ? (
-            <LoadingSpinner />
-          ) : (
             <div className="space-y-6">
               {/* Contact info */}
               <div className="space-y-4">
@@ -129,9 +127,7 @@ export default function ContactSection() {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-muted)] hover:border-brand/40 hover:text-brand transition-all duration-150"
                       >
-                        {social.icon && (
-                          <img src={social.icon} alt="" className="w-4 h-4 object-contain" />
-                        )}
+                        <SocialIcon platform={social.platform} className="w-4 h-4" />
                         {social.platform}
                       </a>
                     ))}
@@ -139,7 +135,6 @@ export default function ContactSection() {
                 </div>
               )}
             </div>
-          )}
         </div>
       </div>
     </section>
