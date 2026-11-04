@@ -517,6 +517,7 @@ export default function AdminPage() {
                 <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 relative">
                   <button 
                     onClick={() => setIsEditingProfile(false)}
+                    aria-label="Cerrar"
                     className="absolute top-6 right-6 text-[var(--color-text-subtle)] hover:text-[var(--color-text)] transition-colors p-2"
                   >
                     <FaTimes size={20} />
@@ -736,12 +737,14 @@ export default function AdminPage() {
                             <div className="flex space-x-2">
                               <button
                                 onClick={() => handleEditSocialMedia(social)}
+                                aria-label="Editar"
                                 className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                               >
                                 <FaEdit size={20} />
                               </button>
                               <button
                                 onClick={() => social.id && handleDeleteSocialMedia(social.id)}
+                                aria-label="Eliminar"
                                 className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                               >
                                 <FaTrash size={20} />
@@ -904,12 +907,14 @@ export default function AdminPage() {
                                   <div className="flex space-x-2">
                                     <button
                                       onClick={() => handleEditSkill(skill)}
+                                      aria-label="Editar"
                                       className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                                     >
                                       <FaEdit size={20} />
                                     </button>
                                     <button
                                       onClick={() => skill.id && handleDeleteSkill(skill.id)}
+                                      aria-label="Eliminar"
                                       className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                                     >
                                       <FaTrash size={20} />
@@ -1112,12 +1117,14 @@ export default function AdminPage() {
                           <div className="flex space-x-2">
                             <button
                               onClick={() => handleEditCertification(cert)}
+                              aria-label="Editar"
                               className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                             >
                               <FaEdit size={20} />
                             </button>
                             <button
                               onClick={() => cert.id && handleDeleteCertification(cert.id)}
+                              aria-label="Eliminar"
                               className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                             >
                               <FaTrash size={20} />
@@ -1277,12 +1284,14 @@ export default function AdminPage() {
                           <div className="flex space-x-2">
                             <button
                               onClick={() => handleEditProject(project)}
+                              aria-label="Editar"
                               className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                             >
                               <FaEdit size={20} />
                             </button>
                             <button
                               onClick={() => project.id && handleDeleteProject(project.id)}
+                              aria-label="Eliminar"
                               className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                             >
                               <FaTrash size={20} />
