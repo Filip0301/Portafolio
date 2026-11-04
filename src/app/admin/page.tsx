@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { PersonalInfo, Skill, Certification, SocialMedia, Project, createOrUpdatePersonalInfo, getAllSkills, updateSkill, deleteSkill, getAllCertifications, updateCertification, deleteCertification, getPersonalInfo, getAllSocialMedia, addSocialMedia, updateSocialMedia, deleteSocialMedia, getAllProjects, addProject, updateProject, deleteProject } from '../../services/firebase';
 import { auth } from '../../config/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { normalizeUrl } from '../../lib/utils';
@@ -23,6 +23,12 @@ const SKILL_CATEGORIES = [
 type SkillCategory = typeof SKILL_CATEGORIES[number];
 
 type TabType = 'perfil' | 'proyectos' | 'habilidades' | 'certificaciones';
+
+// Los campos "separados por comas" guardan el texto crudo mientras se escribe
+// (antes no se podía escribir una coma ni un espacio, p. ej. "Power BI");
+// se limpian al guardar.
+const splitList = (value: string) => value.split(',');
+const cleanList = (items: string[] = []) => items.map((item) => item.trim()).filter(Boolean);
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<TabType>('perfil');
@@ -83,23 +89,6 @@ export default function AdminPage() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setIsAuthenticated(!!user);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadSkills();
-      loadCertifications();
-      loadPersonalInfo();
-      loadSocialMedia();
-      loadProjects();
-    }
-  }, [isAuthenticated]);
-
   const loadSkills = async () => {
     const loadedSkills = await getAllSkills();
     setSkills(loadedSkills);
@@ -143,6 +132,21 @@ export default function AdminPage() {
     setProjects(loadedProjects);
   };
 
+  // Carga los datos al iniciar sesión (en el callback de Firebase, no en el cuerpo del efecto).
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsAuthenticated(!!user);
+      if (user) {
+        loadSkills();
+        loadCertifications();
+        loadPersonalInfo();
+        loadSocialMedia();
+        loadProjects();
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -159,7 +163,7 @@ export default function AdminPage() {
       await createOrUpdatePersonalInfo(personalInfo);
       setPersonalInfo(personalInfo);
       setIsEditingProfile(false);
-      alert('Información personal actualizada con éxito');
+      alert('Información personal actualizada con éxito. Puede tardar hasta 5 minutos en verse en el sitio.');
     } catch (error) {
       console.error('Error al actualizar información personal:', error);
       alert('Error al actualizar la información personal');
@@ -172,7 +176,7 @@ export default function AdminPage() {
       await addDoc(collection(db, 'skills'), newSkill);
       setNewSkill({ name: '', category: 'Otros', icon: '', years_experience: 0 });
       await loadSkills();
-      alert('Habilidad agregada con éxito');
+      alert('Habilidad agregada con éxito. Puede tardar hasta 5 minutos en verse en el sitio.');
     } catch (error) {
       console.error('Error al agregar habilidad:', error);
       alert('Error al agregar la habilidad');
@@ -182,7 +186,10 @@ export default function AdminPage() {
   const handleAddCertification = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await addDoc(collection(db, 'certifications'), newCertification);
+      await addDoc(collection(db, 'certifications'), {
+        ...newCertification,
+        credential_url: normalizeUrl(newCertification.credential_url),
+      });
       setNewCertification({
         name: '',
         issuer: '',
@@ -195,7 +202,7 @@ export default function AdminPage() {
         image_url: ''
       });
       await loadCertifications();
-      alert('Certificación agregada con éxito');
+      alert('Certificación agregada con éxito. Puede tardar hasta 5 minutos en verse en el sitio.');
     } catch (error) {
       console.error('Error al agregar certificación:', error);
       alert('Error al agregar la certificación');
@@ -218,7 +225,7 @@ export default function AdminPage() {
         isActive: true
       });
       await loadSocialMedia();
-      alert('Red social agregada con éxito');
+      alert('Red social agregada con éxito. Puede tardar hasta 5 minutos en verse en el sitio.');
     } catch (error) {
       console.error('Error al agregar red social:', error);
       alert('Error al agregar la red social');
@@ -242,7 +249,7 @@ export default function AdminPage() {
       await updateSkill(editingSkill.id, editingSkill);
       setEditingSkill(null);
       await loadSkills();
-      alert('Habilidad actualizada con éxito');
+      alert('Habilidad actualizada con éxito. Puede tardar hasta 5 minutos en verse en el sitio.');
     } catch (error) {
       console.error('Error al actualizar habilidad:', error);
       alert('Error al actualizar la habilidad');
@@ -254,7 +261,7 @@ export default function AdminPage() {
       try {
         await deleteSkill(skillId);
         await loadSkills();
-        alert('Habilidad eliminada con éxito');
+        alert('Habilidad eliminada con éxito. Puede tardar hasta 5 minutos en verse en el sitio.');
       } catch (error) {
         console.error('Error al eliminar habilidad:', error);
         alert('Error al eliminar la habilidad');
@@ -287,7 +294,7 @@ export default function AdminPage() {
       });
       setEditingCertification(null);
       await loadCertifications();
-      alert('Certificación actualizada con éxito');
+      alert('Certificación actualizada con éxito. Puede tardar hasta 5 minutos en verse en el sitio.');
     } catch (error) {
       console.error('Error al actualizar certificación:', error);
       alert('Error al actualizar la certificación');
@@ -299,7 +306,7 @@ export default function AdminPage() {
       try {
         await deleteCertification(certId);
         await loadCertifications();
-        alert('Certificación eliminada con éxito');
+        alert('Certificación eliminada con éxito. Puede tardar hasta 5 minutos en verse en el sitio.');
       } catch (error) {
         console.error('Error al eliminar certificación:', error);
         alert('Error al eliminar la certificación');
@@ -318,7 +325,7 @@ export default function AdminPage() {
       await updateSocialMedia(editingSocialMedia.id, { ...editingSocialMedia, url: normalizeUrl(editingSocialMedia.url) });
       setEditingSocialMedia(null);
       await loadSocialMedia();
-      alert('Red social actualizada con éxito');
+      alert('Red social actualizada con éxito. Puede tardar hasta 5 minutos en verse en el sitio.');
     } catch (error) {
       console.error('Error al actualizar red social:', error);
       alert('Error al actualizar la red social');
@@ -330,7 +337,7 @@ export default function AdminPage() {
       try {
         await deleteSocialMedia(id);
         await loadSocialMedia();
-        alert('Red social eliminada con éxito');
+        alert('Red social eliminada con éxito. Puede tardar hasta 5 minutos en verse en el sitio.');
       } catch (error) {
         console.error('Error al eliminar red social:', error);
         alert('Error al eliminar la red social');
@@ -343,6 +350,8 @@ export default function AdminPage() {
     try {
       await addProject({
         ...newProject,
+        tags: cleanList(newProject.tags),
+        disciplines: cleanList(newProject.disciplines),
         github_url: normalizeUrl(newProject.github_url),
         live_url: normalizeUrl(newProject.live_url),
       });
@@ -357,7 +366,7 @@ export default function AdminPage() {
         featured: false
       });
       await loadProjects();
-      alert('Proyecto agregado con éxito');
+      alert('Proyecto agregado con éxito. Puede tardar hasta 5 minutos en verse en el sitio.');
     } catch (error) {
       console.error('Error al agregar proyecto:', error);
       alert('Error al agregar el proyecto');
@@ -373,12 +382,14 @@ export default function AdminPage() {
     try {
       await updateProject(editingProject.id, {
         ...editingProject,
+        tags: cleanList(editingProject.tags),
+        disciplines: cleanList(editingProject.disciplines),
         github_url: normalizeUrl(editingProject.github_url),
         live_url: normalizeUrl(editingProject.live_url),
       });
       setEditingProject(null);
       await loadProjects();
-      alert('Proyecto actualizado con éxito');
+      alert('Proyecto actualizado con éxito. Puede tardar hasta 5 minutos en verse en el sitio.');
     } catch (error) {
       console.error('Error al actualizar proyecto:', error);
       alert('Error al actualizar el proyecto');
@@ -390,7 +401,7 @@ export default function AdminPage() {
       try {
         await deleteProject(id);
         await loadProjects();
-        alert('Proyecto eliminado con éxito');
+        alert('Proyecto eliminado con éxito. Puede tardar hasta 5 minutos en verse en el sitio.');
       } catch (error) {
         console.error('Error al eliminar proyecto:', error);
         alert('Error al eliminar el proyecto');
@@ -400,16 +411,17 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[var(--color-bg)] flex items-center justify-center p-4">
         <div className="glass p-10 rounded-2xl w-full max-w-md animate-fade-in">
           <h2 className="text-3xl font-heading font-bold mb-8 text-center text-[var(--color-text)]">Iniciar Sesión</h2>
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label htmlFor="admin-campo-1" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Email
               </label>
-              <input
+              <input id="admin-campo-1"
                 type="email"
+                autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -417,11 +429,12 @@ export default function AdminPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label htmlFor="admin-campo-2" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Contraseña
               </label>
-              <input
+              <input id="admin-campo-2"
                 type="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -441,14 +454,21 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-background)]">
+    <div className="min-h-screen bg-[var(--color-bg)]">
       {/* Contenido */}
       <div className="relative z-10 pt-24">
         <div className="max-w-5xl mx-auto px-4 pb-20">
           <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <h1 className="text-4xl font-heading font-bold text-[var(--color-text)]">Panel de Administración</h1>
-              <p className="text-[var(--color-text-muted)] mt-2">Gestiona el contenido de tu portafolio en tiempo real.</p>
+              <p className="text-[var(--color-text-muted)] mt-2">Gestiona el contenido de tu portafolio. Los cambios se ven en el sitio en unos minutos.</p>
+              <button
+                type="button"
+                onClick={() => signOut(auth)}
+                className="mt-3 text-sm text-[var(--color-text-muted)] hover:text-brand hover:underline underline-offset-4"
+              >
+                Cerrar sesión
+              </button>
             </div>
             
             {/* Tabs de Navegación */}
@@ -460,7 +480,7 @@ export default function AdminPage() {
                   className={`px-5 py-2 rounded-lg text-sm font-medium capitalize transition-all whitespace-nowrap ${
                     activeTab === tab
                       ? 'bg-brand text-white shadow-md shadow-brand/20'
-                      : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-hover)]'
+                      : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-2)]'
                   }`}
                 >
                   {tab}
@@ -529,8 +549,8 @@ export default function AdminPage() {
                   <form onSubmit={handlePersonalInfoSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">Nombre</label>
-                        <input
+                        <label htmlFor="admin-campo-3" className="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">Nombre</label>
+                        <input id="admin-campo-3"
                           type="text"
                           value={personalInfo.name || ''}
                           onChange={(e) => setPersonalInfo({...personalInfo, name: e.target.value})}
@@ -539,8 +559,8 @@ export default function AdminPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">Título Profesional</label>
-                        <input
+                        <label htmlFor="admin-campo-4" className="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">Título Profesional</label>
+                        <input id="admin-campo-4"
                           type="text"
                           value={personalInfo.title || ''}
                           onChange={(e) => setPersonalInfo({...personalInfo, title: e.target.value})}
@@ -550,8 +570,8 @@ export default function AdminPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">Descripción Resumida</label>
-                      <textarea
+                      <label htmlFor="admin-campo-5" className="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">Descripción Resumida</label>
+                      <textarea id="admin-campo-5"
                         value={personalInfo.description || ''}
                         onChange={(e) => setPersonalInfo({...personalInfo, description: e.target.value})}
                         rows={5}
@@ -561,8 +581,8 @@ export default function AdminPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                       <div>
-                        <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">Email Público</label>
-                        <input
+                        <label htmlFor="admin-campo-6" className="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">Email Público</label>
+                        <input id="admin-campo-6"
                           type="email"
                           value={personalInfo.email || ''}
                           onChange={(e) => setPersonalInfo({...personalInfo, email: e.target.value})}
@@ -571,8 +591,8 @@ export default function AdminPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">Teléfono (Opcional)</label>
-                        <input
+                        <label htmlFor="admin-campo-7" className="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">Teléfono (Opcional)</label>
+                        <input id="admin-campo-7"
                           type="tel"
                           value={personalInfo.phone || ''}
                           onChange={(e) => setPersonalInfo({...personalInfo, phone: e.target.value})}
@@ -581,8 +601,8 @@ export default function AdminPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">Ubicación</label>
-                        <input
+                        <label htmlFor="admin-campo-8" className="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">Ubicación</label>
+                        <input id="admin-campo-8"
                           type="text"
                           value={personalInfo.location || ''}
                           onChange={(e) => setPersonalInfo({...personalInfo, location: e.target.value})}
@@ -621,8 +641,8 @@ export default function AdminPage() {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Plataforma</label>
-                    <input
+                    <label htmlFor="admin-campo-9" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Plataforma</label>
+                    <input id="admin-campo-9"
                       type="text"
                       value={newSocialMedia.platform}
                       onChange={(e) => setNewSocialMedia({...newSocialMedia, platform: e.target.value})}
@@ -630,8 +650,8 @@ export default function AdminPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">URL</label>
-                    <input
+                    <label htmlFor="admin-campo-10" className="block text-sm font-medium text-gray-700 dark:text-gray-300">URL</label>
+                    <input id="admin-campo-10"
                       type="url"
                       value={newSocialMedia.url}
                       onChange={(e) => setNewSocialMedia({...newSocialMedia, url: e.target.value})}
@@ -639,8 +659,8 @@ export default function AdminPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Usuario</label>
-                    <input
+                    <label htmlFor="admin-campo-11" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Usuario</label>
+                    <input id="admin-campo-11"
                       type="text"
                       value={newSocialMedia.username}
                       onChange={(e) => setNewSocialMedia({...newSocialMedia, username: e.target.value})}
@@ -648,8 +668,8 @@ export default function AdminPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Icono</label>
-                    <input
+                    <label htmlFor="admin-campo-12" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Icono</label>
+                    <input id="admin-campo-12"
                       type="text"
                       value={newSocialMedia.icon}
                       onChange={(e) => setNewSocialMedia({...newSocialMedia, icon: e.target.value})}
@@ -769,8 +789,8 @@ export default function AdminPage() {
               <form onSubmit={handleAddSkill} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
-                    <input
+                    <label htmlFor="admin-campo-13" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
+                    <input id="admin-campo-13"
                       type="text"
                       value={newSkill.name}
                       onChange={(e) => setNewSkill({...newSkill, name: e.target.value})}
@@ -779,8 +799,8 @@ export default function AdminPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Categoría</label>
-                    <select
+                    <label htmlFor="admin-campo-14" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Categoría</label>
+                    <select id="admin-campo-14"
                       value={newSkill.category}
                       onChange={(e) => setNewSkill({...newSkill, category: e.target.value as SkillCategory})}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -796,19 +816,18 @@ export default function AdminPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Icono</label>
-                    <input
-                      type="text"
+                    <label htmlFor="admin-campo-15" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Icono (opcional)</label>
+                    <input id="admin-campo-15"
+                      type="url"
                       value={newSkill.icon}
                       onChange={(e) => setNewSkill({...newSkill, icon: e.target.value})}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      placeholder="Ejemplo: FaReact"
-                      required
+                      placeholder="URL de imagen; si el nombre es conocido se usa un ícono propio"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Años de Experiencia</label>
-                    <input
+                    <label htmlFor="admin-campo-16" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Años de Experiencia</label>
+                    <input id="admin-campo-16"
                       type="number"
                       value={newSkill.years_experience.toString()}
                       onChange={(e) => {
@@ -859,7 +878,8 @@ export default function AdminPage() {
                                       value={editingSkill.icon}
                                       onChange={(e) => setEditingSkill({...editingSkill, icon: e.target.value})}
                                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                      placeholder="Icono (ej: FaReact)"
+                                      placeholder="URL de icono (opcional)"
+                                      aria-label="URL de icono"
                                     />
                                     <input
                                       type="number"
@@ -942,8 +962,8 @@ export default function AdminPage() {
               <form onSubmit={handleAddCertification} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
-                    <input
+                    <label htmlFor="admin-campo-17" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
+                    <input id="admin-campo-17"
                       type="text"
                       value={newCertification.name}
                       onChange={(e) => setNewCertification({...newCertification, name: e.target.value})}
@@ -952,8 +972,8 @@ export default function AdminPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Emisor</label>
-                    <input
+                    <label htmlFor="admin-campo-18" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Emisor</label>
+                    <input id="admin-campo-18"
                       type="text"
                       value={newCertification.issuer}
                       onChange={(e) => setNewCertification({...newCertification, issuer: e.target.value})}
@@ -964,8 +984,8 @@ export default function AdminPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Fecha de Emisión</label>
-                    <input
+                    <label htmlFor="admin-campo-19" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Fecha de Emisión</label>
+                    <input id="admin-campo-19"
                       type="date"
                       value={newCertification.issue_date}
                       onChange={(e) => setNewCertification({...newCertification, issue_date: e.target.value})}
@@ -974,25 +994,54 @@ export default function AdminPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Icono</label>
-                    <input
-                      type="text"
+                    <label htmlFor="admin-campo-20" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Badge (opcional)</label>
+                    <input id="admin-campo-20"
+                      type="url"
                       value={newCertification.icon}
                       onChange={(e) => setNewCertification({...newCertification, icon: e.target.value})}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      placeholder="Ejemplo: FaCertificate"
-                      required
+                      placeholder="URL de la imagen del badge"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Descripción</label>
-                  <textarea
+                  <label htmlFor="admin-campo-21" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Descripción</label>
+                  <textarea id="admin-campo-21"
                     value={newCertification.description || ''}
                     onChange={(e) => setNewCertification({...newCertification, description: e.target.value})}
                     rows={4}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label htmlFor="admin-campo-22" className="block text-sm font-medium text-gray-700 dark:text-gray-300">URL de verificación</label>
+                    <input id="admin-campo-22"
+                      type="url"
+                      value={newCertification.credential_url || ''}
+                      onChange={(e) => setNewCertification({...newCertification, credential_url: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      placeholder="https://www.credly.com/..."
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="admin-campo-23" className="block text-sm font-medium text-gray-700 dark:text-gray-300">ID de credencial</label>
+                    <input id="admin-campo-23"
+                      type="text"
+                      value={newCertification.credential_id || ''}
+                      onChange={(e) => setNewCertification({...newCertification, credential_id: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="admin-campo-24" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Imagen del certificado</label>
+                    <input id="admin-campo-24"
+                      type="url"
+                      value={newCertification.image_url || ''}
+                      onChange={(e) => setNewCertification({...newCertification, image_url: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                  </div>
                 </div>
                 <button
                   type="submit"
@@ -1060,7 +1109,8 @@ export default function AdminPage() {
                                 });
                               }}
                               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                              placeholder="Ejemplo: FaCertificate"
+                              placeholder="URL del badge (opcional)"
+                              aria-label="URL del badge"
                             />
                           </div>
                           <textarea
@@ -1148,8 +1198,8 @@ export default function AdminPage() {
               <form onSubmit={handleAddProject} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Título</label>
-                    <input
+                    <label htmlFor="admin-campo-25" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Título</label>
+                    <input id="admin-campo-25"
                       type="text"
                       value={newProject.title}
                       onChange={(e) => setNewProject({...newProject, title: e.target.value})}
@@ -1158,34 +1208,33 @@ export default function AdminPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Imagen URL</label>
-                    <input
-                      type="text"
+                    <label htmlFor="admin-campo-26" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Imagen URL (opcional)</label>
+                    <input id="admin-campo-26"
+                      type="url"
                       value={newProject.image_url}
                       onChange={(e) => setNewProject({...newProject, image_url: e.target.value})}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      required
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tags (Separados por comas)</label>
-                    <input
+                    <label htmlFor="admin-campo-27" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tags (Separados por comas)</label>
+                    <input id="admin-campo-27"
                       type="text"
-                      value={newProject.tags.join(', ')}
-                      onChange={(e) => setNewProject({...newProject, tags: e.target.value.split(',').map(s => s.trim()).filter(Boolean)})}
+                      value={newProject.tags.join(',')}
+                      onChange={(e) => setNewProject({...newProject, tags: splitList(e.target.value)})}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       placeholder="React, Next.js, Tailwind"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Disciplinas (Separadas por comas)</label>
-                    <input
+                    <label htmlFor="admin-campo-28" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Disciplinas (Separadas por comas)</label>
+                    <input id="admin-campo-28"
                       type="text"
-                      value={newProject.disciplines ? newProject.disciplines.join(', ') : ''}
-                      onChange={(e) => setNewProject({...newProject, disciplines: e.target.value.split(',').map(s => s.trim()).filter(Boolean)})}
+                      value={newProject.disciplines ? newProject.disciplines.join(',') : ''}
+                      onChange={(e) => setNewProject({...newProject, disciplines: splitList(e.target.value)})}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       placeholder="Data Analysis, Full Stack"
                     />
@@ -1193,8 +1242,8 @@ export default function AdminPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">URL del Live (Opcional)</label>
-                    <input
+                    <label htmlFor="admin-campo-29" className="block text-sm font-medium text-gray-700 dark:text-gray-300">URL del Live (Opcional)</label>
+                    <input id="admin-campo-29"
                       type="text"
                       value={newProject.live_url || ''}
                       onChange={(e) => setNewProject({...newProject, live_url: e.target.value})}
@@ -1203,8 +1252,8 @@ export default function AdminPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">URL de Github (Opcional)</label>
-                    <input
+                    <label htmlFor="admin-campo-30" className="block text-sm font-medium text-gray-700 dark:text-gray-300">URL de Github (Opcional)</label>
+                    <input id="admin-campo-30"
                       type="text"
                       value={newProject.github_url || ''}
                       onChange={(e) => setNewProject({...newProject, github_url: e.target.value})}
@@ -1214,8 +1263,8 @@ export default function AdminPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Descripción</label>
-                  <textarea
+                  <label htmlFor="admin-campo-31" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Descripción</label>
+                  <textarea id="admin-campo-31"
                     value={newProject.description || ''}
                     onChange={(e) => setNewProject({...newProject, description: e.target.value})}
                     rows={4}
@@ -1248,16 +1297,54 @@ export default function AdminPage() {
                               placeholder="Título"
                             />
                             <input
-                               type="text"
-                               value={editingProject.tags.join(', ')}
-                               onChange={(e) => setEditingProject({
-                                 ...editingProject, 
-                                 tags: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                               })}
-                               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                               placeholder="Tags"
+                              type="text"
+                              value={editingProject.tags.join(',')}
+                              onChange={(e) => setEditingProject({...editingProject, tags: splitList(e.target.value)})}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                              placeholder="Tags (separados por comas)"
+                              aria-label="Tags"
+                            />
+                            <input
+                              type="text"
+                              value={(editingProject.disciplines ?? []).join(',')}
+                              onChange={(e) => setEditingProject({...editingProject, disciplines: splitList(e.target.value)})}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                              placeholder="Disciplinas (separadas por comas)"
+                              aria-label="Disciplinas"
+                            />
+                            <input
+                              type="url"
+                              value={editingProject.github_url ?? ''}
+                              onChange={(e) => setEditingProject({...editingProject, github_url: e.target.value})}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                              placeholder="URL de GitHub"
+                              aria-label="URL de GitHub"
+                            />
+                            <input
+                              type="url"
+                              value={editingProject.live_url ?? ''}
+                              onChange={(e) => setEditingProject({...editingProject, live_url: e.target.value})}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                              placeholder="URL del demo"
+                              aria-label="URL del demo"
                             />
                           </div>
+                          <textarea
+                            value={editingProject.description ?? ''}
+                            onChange={(e) => setEditingProject({...editingProject, description: e.target.value})}
+                            rows={3}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            placeholder="Descripción"
+                            aria-label="Descripción"
+                          />
+                          <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                            <input
+                              type="checkbox"
+                              checked={!!editingProject.featured}
+                              onChange={(e) => setEditingProject({...editingProject, featured: e.target.checked})}
+                            />
+                            Proyecto destacado
+                          </label>
                           <div className="flex space-x-2">
                             <button
                               onClick={handleUpdateProject}

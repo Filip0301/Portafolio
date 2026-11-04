@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { createElement, useEffect, useRef, useState } from 'react';
 import type { IconType } from 'react-icons';
 import {
   SiApple, SiCss3, SiFirebase, SiGithub, SiGoogleads, SiGoogleanalytics, SiHtml5,
@@ -75,7 +75,8 @@ export default function TechIcon({ name, src, className }: TechIconProps) {
     if (img && img.complete && img.naturalWidth === 0) setBroken(true);
   }, []);
 
-  if (Icon) return <Icon className={className} aria-hidden="true" />;
+  // createElement: Icon es un componente estático de react-icons elegido de una tabla.
+  if (Icon) return createElement(Icon, { className, 'aria-hidden': true });
 
   if (src && !broken) {
     return (
@@ -101,6 +102,5 @@ export default function TechIcon({ name, src, className }: TechIconProps) {
 }
 
 export function SocialIcon({ platform, className }: { platform: string; className?: string }) {
-  const Icon = findIcon(SOCIAL_ICONS, platform) ?? FaGlobe;
-  return <Icon className={className} aria-hidden="true" />;
+  return createElement(findIcon(SOCIAL_ICONS, platform) ?? FaGlobe, { className, 'aria-hidden': true });
 }
