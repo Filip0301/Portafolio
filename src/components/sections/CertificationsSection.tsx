@@ -5,6 +5,7 @@ import { useCertifications } from '../../hooks/useCertifications';
 import SectionHeader from '../ui/SectionHeader';
 import Card from '../ui/Card';
 import LoadingSpinner from '../ui/LoadingSpinner';
+import { normalizeUrl } from '../../lib/utils';
 import { FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
 
 export default function CertificationsSection() {
@@ -80,7 +81,7 @@ export default function CertificationsSection() {
                   {cert.credential_url && (
                     <div className="mt-auto pt-2">
                       <button
-                        onClick={() => setSelectedCertUrl(cert.credential_url!)}
+                        onClick={() => setSelectedCertUrl(normalizeUrl(cert.credential_url))}
                         className="inline-flex items-center gap-2 text-xs text-brand hover:text-brand-400 transition-colors font-medium"
                       >
                         Ver credencial

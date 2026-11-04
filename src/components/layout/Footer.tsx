@@ -1,23 +1,32 @@
 'use client';
 
 import React from 'react';
+import { usePersonalInfo } from '../../hooks/usePersonalInfo';
+import { normalizeUrl } from '../../lib/utils';
 
-const SOCIAL_LINKS = [
-  { label: 'GitHub',   href: 'https://github.com/macfelipe' },
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/felipezuniga' },
+// Solo se usan si Firestore no devuelve redes sociales.
+const FALLBACK_LINKS = [
+  { label: 'GitHub',   href: 'https://github.com/Filip0301' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/felipe-ismael-zuñiga-torres-239272252' },
 ];
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const { socialMedia } = usePersonalInfo();
+
+  const firestoreLinks = socialMedia
+    .filter((s) => s.isActive && s.url)
+    .map((s) => ({ label: s.platform, href: normalizeUrl(s.url) }));
+  const links = firestoreLinks.length > 0 ? firestoreLinks : FALLBACK_LINKS;
 
   return (
     <footer className="border-t border-[var(--color-border)] bg-[var(--color-surface)]">
       <div className="section-container py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-sm text-[var(--color-text-subtle)]">
-          © {year} Felipe Zúñiga — Diseñado &amp; desarrollado con Next.js
+          {`© ${year} Felipe Ismael Torres Ponce de León — Diseñado & desarrollado con Next.js`}
         </p>
         <div className="flex items-center gap-6">
-          {SOCIAL_LINKS.map(({ label, href }) => (
+          {links.map(({ label, href }) => (
             <a
               key={label}
               href={href}

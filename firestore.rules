@@ -2,38 +2,48 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Función para verificar si el usuario está autenticado
-    function isAuthenticated() {
-      return request.auth != null;
+    // Solo el administrador del portafolio puede escribir.
+    // Reemplaza REEMPLAZAR_CON_TU_UID por tu UID:
+    // Firebase Console → Authentication → Users → columna "User UID".
+    // Mientras quede el texto de ejemplo, nadie puede escribir (falla cerrado).
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.uid == 'REEMPLAZAR_CON_TU_UID';
     }
 
-    // Reglas para la colección de información personal
+    // Información personal
     match /personal_info/{document} {
-      allow read: if true;  // Lectura pública
-      allow write: if isAuthenticated();  // Solo escritura para usuarios autenticados
-    }
-    
-    // Reglas para la colección de habilidades
-    match /skills/{skill} {
-      allow read: if true;  // Lectura pública
-      allow write: if isAuthenticated();  // Solo escritura para usuarios autenticados
-    }
-    
-    // Reglas para la colección de certificaciones
-    match /certifications/{certification} {
-      allow read: if true;  // Lectura pública
-      allow write: if isAuthenticated();  // Solo escritura para usuarios autenticados
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
-    // Reglas para la colección de redes sociales
-    match /social_media/{social} {
-      allow read: if true;  // Lectura pública
-      allow write: if isAuthenticated();  // Solo escritura para usuarios autenticados
+    // Habilidades
+    match /skills/{skill} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
-    
+
+    // Certificaciones
+    match /certifications/{certification} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Redes sociales
+    match /social_media/{social} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Proyectos
+    match /projects/{project} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // Regla por defecto: denegar todo lo demás
     match /{document=**} {
       allow read, write: if false;
     }
   }
-} 
+}

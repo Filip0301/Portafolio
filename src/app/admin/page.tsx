@@ -6,7 +6,7 @@ import { auth } from '../../config/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
-import { initializeCollections } from '../../utils/initializeFirestore';
+import { normalizeUrl } from '../../lib/utils';
 import { FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
 
 // Categorías predefinidas
@@ -123,10 +123,10 @@ export default function AdminPage() {
       });
     } else {
       setPersonalInfo({
-        name: 'Felipe Zúñiga',
+        name: 'Felipe Ismael Torres Ponce de León',
         title: 'Data Analyst & Full Stack Developer',
         description: 'Soy Ingeniero en Informática con pasión por convertir datos en decisiones. Me especializo en análisis de datos, visualización con dashboards interactivos y desarrollo full stack.',
-        email: 'contacto@felipezuniga.dev',
+        email: 'torresfelipe305@gmail.com',
         phone: '',
         location: 'Chile'
       });
@@ -147,7 +147,6 @@ export default function AdminPage() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      await initializeCollections();
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
       alert('Error al iniciar sesión. Verifica tus credenciales.');
@@ -210,7 +209,7 @@ export default function AdminPage() {
     }
 
     try {
-      await addSocialMedia(newSocialMedia);
+      await addSocialMedia({ ...newSocialMedia, url: normalizeUrl(newSocialMedia.url) });
       setNewSocialMedia({
         platform: '',
         url: '',
@@ -282,7 +281,10 @@ export default function AdminPage() {
   const handleUpdateCertification = async () => {
     if (!editingCertification?.id) return;
     try {
-      await updateCertification(editingCertification.id, editingCertification);
+      await updateCertification(editingCertification.id, {
+        ...editingCertification,
+        credential_url: normalizeUrl(editingCertification.credential_url),
+      });
       setEditingCertification(null);
       await loadCertifications();
       alert('Certificación actualizada con éxito');
@@ -313,7 +315,7 @@ export default function AdminPage() {
     if (!editingSocialMedia?.id) return;
     
     try {
-      await updateSocialMedia(editingSocialMedia.id, editingSocialMedia);
+      await updateSocialMedia(editingSocialMedia.id, { ...editingSocialMedia, url: normalizeUrl(editingSocialMedia.url) });
       setEditingSocialMedia(null);
       await loadSocialMedia();
       alert('Red social actualizada con éxito');
@@ -339,7 +341,11 @@ export default function AdminPage() {
   const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await addProject(newProject);
+      await addProject({
+        ...newProject,
+        github_url: normalizeUrl(newProject.github_url),
+        live_url: normalizeUrl(newProject.live_url),
+      });
       setNewProject({
         title: '',
         description: '',
@@ -365,7 +371,11 @@ export default function AdminPage() {
   const handleUpdateProject = async () => {
     if (!editingProject?.id) return;
     try {
-      await updateProject(editingProject.id, editingProject);
+      await updateProject(editingProject.id, {
+        ...editingProject,
+        github_url: normalizeUrl(editingProject.github_url),
+        live_url: normalizeUrl(editingProject.live_url),
+      });
       setEditingProject(null);
       await loadProjects();
       alert('Proyecto actualizado con éxito');
