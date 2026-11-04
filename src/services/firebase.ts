@@ -1,45 +1,9 @@
 import { collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
-// Tipos
-export interface SocialMedia {
-  id?: string;
-  platform: string;
-  url: string;
-  username: string;
-  icon: string;
-  isActive: boolean;
-}
-
-export interface PersonalInfo {
-  name: string;
-  title: string;
-  description: string;
-  email: string;
-  phone: string;
-  location: string;
-}
-
-export interface Skill {
-  id?: string;
-  name: string;
-  category: string;
-  icon: string;
-  years_experience: number;
-}
-
-export interface Certification {
-  id?: string;
-  name: string;
-  issuer: string;
-  issue_date: string;
-  icon: string;
-  expiry_date?: string;
-  credential_id?: string;
-  credential_url?: string;
-  description?: string;
-  image_url?: string;
-}
+// Tipos: una sola definición en types/portfolio.ts
+import type { Certification, PersonalInfo, Project, Skill, SocialMedia } from '../types/portfolio';
+export type { Certification, PersonalInfo, Project, Skill, SocialMedia };
 
 // Funciones para PersonalInfo
 export const createOrUpdatePersonalInfo = async (data: PersonalInfo) => {
@@ -180,8 +144,6 @@ export const deleteCertification = async (certId: string) => {
 };
 
 // Funciones para Proyectos
-export type { Project } from '../types/portfolio';
-import { Project } from '../types/portfolio';
 
 export const getAllProjects = async (): Promise<Project[]> => {
   try {

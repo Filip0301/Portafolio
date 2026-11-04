@@ -2,9 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ============================================================
-   GOOGLE FONTS — loaded via next/font in layout.tsx
-   ============================================================ */
+/* Tipografía: la pila de tailwind.config.js (Helvetica Neue, Helvetica, Arial).
+   Antes se referenciaban --font-inter y --font-space-grotesk, que nunca se cargaban. */
 
 /* ============================================================
    CSS CUSTOM PROPERTIES — Design Tokens
@@ -67,7 +66,6 @@ body {
   padding: 0;
   background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--font-inter), system-ui, sans-serif;
   font-size: 1rem;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
@@ -76,7 +74,6 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-space-grotesk), system-ui, sans-serif;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -103,7 +100,7 @@ button { cursor: pointer; }
    SELECTION
    ============================================================ */
 ::selection {
-  background: rgba(99, 102, 241, 0.3);
+  background: rgba(37, 99, 235, 0.3);
   color: var(--color-text);
 }
 
@@ -146,6 +143,10 @@ button { cursor: pointer; }
 }
 
 .grid-bg {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(15 23 42 / 0.05)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+}
+/* En modo claro la cuadrícula blanca era invisible: cada tema tiene su trazo. */
+.dark .grid-bg {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(255 255 255 / 0.04)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
 }
 
@@ -180,6 +181,10 @@ button { cursor: pointer; }
 .delay-500 { animation-delay: 0.5s; }
 
 .opacity-0-init { opacity: 0; }
+
+/* Barra de pestañas del admin: desplazable sin mostrar la barra de scroll */
+.hide-scrollbar { scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
 
 /* ============================================================
    MOVIMIENTO REDUCIDO

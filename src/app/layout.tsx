@@ -3,6 +3,7 @@ import './globals.css';
 import { ThemeProvider } from '../context/ThemeContext';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
+import HideOnAdmin from '../components/layout/HideOnAdmin';
 import Analytics from '../components/Analytics';
 import { getPortfolioData } from '../lib/portfolioData';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '../lib/site';
@@ -54,7 +55,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ThemeProvider>
           <Navbar />
           <main id="contenido">{children}</main>
-          <Footer socialMedia={socialMedia} />
+          <HideOnAdmin>
+            <Footer socialMedia={socialMedia} />
+          </HideOnAdmin>
         </ThemeProvider>
         <Analytics />
       </body>

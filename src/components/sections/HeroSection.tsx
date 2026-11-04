@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import Button from '../ui/Button';
 import { normalizeUrl } from '../../lib/utils';
 import type { PersonalInfo, SocialMedia } from '../../types/portfolio';
@@ -17,48 +17,47 @@ interface HeroSectionProps {
   socialMedia: SocialMedia[];
 }
 
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+
+function subscribeReducedMotion(onChange: () => void) {
+  const query = window.matchMedia(REDUCED_MOTION_QUERY);
+  query.addEventListener('change', onChange);
+  return () => query.removeEventListener('change', onChange);
+}
+
 export default function HeroSection({ info, socialMedia }: HeroSectionProps) {
   const [roleIndex, setRoleIndex]     = useState(0);
   const [displayed, setDisplayed]     = useState('');
   const [charIdx, setCharIdx]         = useState(0);
   const [deleting, setDeleting]       = useState(false);
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const reduceMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
+    () => false
+  );
 
-  useEffect(() => {
-    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const update = () => setReduceMotion(query.matches);
-    update();
-    query.addEventListener('change', update);
-    return () => query.removeEventListener('change', update);
-  }, []);
-
-  // Typewriter effect (se desactiva si el sistema pide reducir el movimiento)
+  // Typewriter effect (se desactiva si el sistema pide reducir el movimiento).
+  // Cada paso se agenda con setTimeout; el efecto no cambia estado directamente.
   useEffect(() => {
     if (reduceMotion) return;
     const current = ROLES[roleIndex];
+    let delay: number;
+    let step: () => void;
     if (!deleting && charIdx <= current.length) {
-      const t = setTimeout(() => {
-        setDisplayed(current.slice(0, charIdx));
-        setCharIdx(c => c + 1);
-      }, 80);
-      return () => clearTimeout(t);
+      delay = 80;
+      step = () => { setDisplayed(current.slice(0, charIdx)); setCharIdx(c => c + 1); };
+    } else if (!deleting) {
+      delay = 1800;
+      step = () => setDeleting(true);
+    } else if (charIdx >= 0) {
+      delay = 40;
+      step = () => { setDisplayed(current.slice(0, charIdx)); setCharIdx(c => c - 1); };
+    } else {
+      delay = 0;
+      step = () => { setDeleting(false); setCharIdx(0); setRoleIndex(i => (i + 1) % ROLES.length); };
     }
-    if (!deleting && charIdx > current.length) {
-      const t = setTimeout(() => setDeleting(true), 1800);
-      return () => clearTimeout(t);
-    }
-    if (deleting && charIdx >= 0) {
-      const t = setTimeout(() => {
-        setDisplayed(current.slice(0, charIdx));
-        setCharIdx(c => c - 1);
-      }, 40);
-      return () => clearTimeout(t);
-    }
-    if (deleting && charIdx < 0) {
-      setDeleting(false);
-      setCharIdx(0);
-      setRoleIndex(i => (i + 1) % ROLES.length);
-    }
+    const t = setTimeout(step, delay);
+    return () => clearTimeout(t);
   }, [charIdx, deleting, roleIndex, reduceMotion]);
 
   const scrollTo = (id: string) => {
@@ -73,7 +72,7 @@ export default function HeroSection({ info, socialMedia }: HeroSectionProps) {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(99,102,241,0.12) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(37,99,235,0.12) 0%, transparent 70%)',
         }}
         aria-hidden
       />
@@ -81,12 +80,12 @@ export default function HeroSection({ info, socialMedia }: HeroSectionProps) {
       {/* Floating orbs */}
       <div
         className="absolute top-1/3 left-1/4 w-72 h-72 rounded-full blur-3xl pointer-events-none"
-        style={{ background: 'rgba(99,102,241,0.06)', animation: 'float 8s ease-in-out infinite' }}
+        style={{ background: 'rgba(37,99,235,0.06)', animation: 'float 8s ease-in-out infinite' }}
         aria-hidden
       />
       <div
         className="absolute bottom-1/3 right-1/4 w-56 h-56 rounded-full blur-3xl pointer-events-none"
-        style={{ background: 'rgba(129,140,248,0.06)', animation: 'float 10s ease-in-out infinite reverse' }}
+        style={{ background: 'rgba(96,165,250,0.06)', animation: 'float 10s ease-in-out infinite reverse' }}
         aria-hidden
       />
 

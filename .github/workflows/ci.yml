@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    env:
+      # El build no necesita secretos: el ID del proyecto es público y la API key
+      # solo tiene que existir para inicializar Firebase Auth en /admin.
+      NEXT_PUBLIC_FIREBASE_API_KEY: ci-placeholder
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: portafolio-web-2.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: portafolio-web-2
+      NEXT_PUBLIC_FIREBASE_APP_ID: ci-placeholder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
