@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 import { PersonalInfo, SocialMedia, getPersonalInfo, getAllSocialMedia } from '../services/firebase';
 
+// Respaldo si Firestore no responde. Sin teléfono: es mejor no mostrar
+// ninguno que mostrar uno inventado.
 const DEFAULT_INFO: PersonalInfo = {
-  name: 'Felipe Zúñiga',
+  name: 'Felipe Ismael Torres Ponce de León',
   title: 'Data Analyst & Full Stack Developer',
   description: 'Ingeniero en Informática especializado en análisis de datos y desarrollo web full stack.',
-  email: 'contacto@felipezuniga.dev',
-  phone: '+56 9 1234 5678',
+  email: 'torresfelipe305@gmail.com',
+  phone: '',
   location: 'Chile',
 };
 
@@ -17,6 +19,22 @@ interface UsePersonalInfoResult {
   socialMedia: SocialMedia[];
   loading: boolean;
   error: Error | null;
+}
+
+type PersonalInfoPayload = [PersonalInfo | null, SocialMedia[]];
+
+// Hero, Sobre mí, Contacto y el footer usan este hook. Compartimos una sola
+// petición por carga de página en vez de repetir las mismas consultas.
+let pendingRequest: Promise<PersonalInfoPayload> | null = null;
+
+function loadPersonalInfo(): Promise<PersonalInfoPayload> {
+  if (!pendingRequest) {
+    pendingRequest = Promise.all([getPersonalInfo(), getAllSocialMedia()]).catch((err) => {
+      pendingRequest = null; // permitir reintentar en el próximo montaje
+      throw err;
+    });
+  }
+  return pendingRequest;
 }
 
 export function usePersonalInfo(): UsePersonalInfoResult {
@@ -30,7 +48,7 @@ export function usePersonalInfo(): UsePersonalInfoResult {
 
     const load = async () => {
       try {
-        const [info, social] = await Promise.all([getPersonalInfo(), getAllSocialMedia()]);
+        const [info, social] = await loadPersonalInfo();
         if (!cancelled) {
           setData(info ?? DEFAULT_INFO);
           setSocialMedia(social);

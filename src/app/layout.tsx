@@ -5,14 +5,14 @@ import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 
 export const metadata: Metadata = {
-  title: 'Felipe Zúñiga | Data Analyst & Full Stack Developer',
+  title: 'Felipe Ismael Torres Ponce de León | Data Analyst & Full Stack Developer',
   description:
-    'Portafolio de Felipe Zúñiga — Ingeniero en Informática especializado en análisis de datos, BI y desarrollo web full stack.',
+    'Portafolio de Felipe Ismael Torres Ponce de León — Ingeniero en Informática especializado en análisis de datos, BI y desarrollo web full stack.',
   keywords: ['data analyst', 'full stack developer', 'React', 'Next.js', 'Python', 'SQL', 'Chile'],
-  authors: [{ name: 'Felipe Zúñiga' }],
+  authors: [{ name: 'Felipe Ismael Torres Ponce de León' }],
   openGraph: {
-    title: 'Felipe Zúñiga | Data Analyst & Full Stack Developer',
-    description: 'Portafolio de Felipe Zúñiga — Data Analyst & Full Stack Developer',
+    title: 'Felipe Ismael Torres Ponce de León | Data Analyst & Full Stack Developer',
+    description: 'Portafolio de Felipe Ismael Torres Ponce de León — Data Analyst & Full Stack Developer',
     type: 'website',
     locale: 'es_CL',
   },

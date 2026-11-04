@@ -4,6 +4,7 @@ import React from 'react';
 import { usePersonalInfo } from '../../hooks/usePersonalInfo';
 import SectionHeader from '../ui/SectionHeader';
 import LoadingSpinner from '../ui/LoadingSpinner';
+import { normalizeUrl } from '../../lib/utils';
 import { PersonalInfo, SocialMedia } from '../../types/portfolio';
 
 interface ContactItem {
@@ -123,7 +124,7 @@ export default function ContactSection() {
                     {socialMedia.filter(s => s.isActive).map((social, i) => (
                       <a
                         key={social.id ?? i}
-                        href={social.url}
+                        href={normalizeUrl(social.url)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-muted)] hover:border-brand/40 hover:text-brand transition-all duration-150"

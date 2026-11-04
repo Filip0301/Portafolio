@@ -5,6 +5,7 @@ import SectionHeader from '../ui/SectionHeader';
 import Badge from '../ui/Badge';
 import Card from '../ui/Card';
 import { Project } from '../../types/portfolio';
+import { normalizeUrl } from '../../lib/utils';
 
 // Static projects
 const PROJECTS: Project[] = [
@@ -51,7 +52,7 @@ const PROJECTS: Project[] = [
       'Portafolio moderno-minimalista con Next.js, TypeScript, y Firebase. Arquitectura modular, seguridad por headers HTTP, modo oscuro/claro.',
     tags: ['Next.js', 'TypeScript', 'Tailwind CSS'],
     disciplines: ['Web Development', 'Frontend'],
-    github_url: 'https://github.com/macfelipe/portafolio',
+    github_url: 'https://github.com/Filip0301/Portafolio',
     featured: false,
   },
   {
@@ -138,7 +139,7 @@ export default function ProjectsSection() {
                 <div className="flex gap-3">
                   {project.github_url && (
                     <a
-                      href={project.github_url}
+                      href={normalizeUrl(project.github_url)}
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="GitHub"
@@ -151,7 +152,7 @@ export default function ProjectsSection() {
                   )}
                   {project.live_url && (
                     <a
-                      href={project.live_url}
+                      href={normalizeUrl(project.live_url)}
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="Live demo"

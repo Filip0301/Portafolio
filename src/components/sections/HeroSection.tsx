@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { usePersonalInfo } from '../../hooks/usePersonalInfo';
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';
+import { normalizeUrl } from '../../lib/utils';
 
 const ROLES = [
   'Data Analyst',
@@ -91,7 +92,7 @@ export default function HeroSection() {
 
             {/* Name */}
             <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-[var(--color-text)] mb-6 animate-slide-up">
-              {data?.name ?? 'Felipe Zúñiga'}
+              {data?.name || 'Felipe Ismael Torres Ponce de León'}
             </h1>
 
             {/* Animated role */}
@@ -138,7 +139,7 @@ export default function HeroSection() {
                 {socialMedia.filter(s => s.isActive).map((s, i) => (
                   <a
                     key={s.id ?? i}
-                    href={s.url}
+                    href={normalizeUrl(s.url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-[var(--color-text-muted)] hover:text-brand transition-colors duration-150 font-medium"
