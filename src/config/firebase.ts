@@ -18,11 +18,5 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const db   = getFirestore(app);
 export const auth = getAuth(app);
 
-// Analytics: lazy-load only in browser
-if (typeof window !== 'undefined') {
-  import('firebase/analytics').then(({ getAnalytics }) => {
-    getAnalytics(app);
-  }).catch(() => {
-    // Analytics are optional — fail silently
-  });
-}
+// Google Analytics se carga en el layout (components/Analytics.tsx), no aquí:
+// este módulo ahora solo lo usa el panel /admin.
